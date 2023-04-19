@@ -1,3 +1,7 @@
+---
+search:
+  boost: 0.5
+---
 
 # IPv6 Hardware
 
