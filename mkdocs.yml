@@ -68,6 +68,8 @@ plugins:
       glob:
         - molecule/*
         - tests/*
+      regex:
+        - '^examples+\/?(?:[^\/]+\/?)'
   - include_dir_to_nav
   - git-revision-date-localized:
       type: date
