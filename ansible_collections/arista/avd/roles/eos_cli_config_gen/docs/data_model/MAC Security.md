@@ -1,7 +1,3 @@
----
-search:
-  boost: 2
----
 
 # MAC Security
 

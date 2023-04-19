@@ -1,9 +1,5 @@
 {% set filename = item %}
 {% set documentation = documentation_schema[filename] %}
----
-search:
-  boost: 2
----
 
 # {{ filename.split("/")[-1] }}
 {% for table in documentation.tables %}
