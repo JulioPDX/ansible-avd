@@ -4,6 +4,8 @@
 type: dict
 keys:
   traffic_policies:
+    documentation_options:
+      filename: data_model/Traffic Policies
     type: dict
     keys:
       options:
@@ -33,6 +35,7 @@ keys:
                     description: IPv4 Prefix
           ipv6:
             type: list
+            secondary_key: prefixes
             primary_key: name
             convert_types:
               - dict

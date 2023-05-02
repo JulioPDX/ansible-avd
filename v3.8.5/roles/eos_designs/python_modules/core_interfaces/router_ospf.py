@@ -17,7 +17,7 @@ class RouterOspfMixin(UtilsMixin):
         Return structured config for router_ospf
         """
 
-        if not self._underlay_ospf:
+        if not self.shared_utils.underlay_ospf:
             return None
 
         no_passive_interfaces = [
@@ -25,11 +25,12 @@ class RouterOspfMixin(UtilsMixin):
         ]
         if no_passive_interfaces:
             return {
-                "process_ids": {
-                    self._underlay_ospf_process_id: {
+                "process_ids": [
+                    {
+                        "id": self.shared_utils.underlay_ospf_process_id,
                         "no_passive_interfaces": no_passive_interfaces,
                     }
-                }
+                ]
             }
 
         return None

@@ -4,6 +4,8 @@
 type: dict
 keys:
   port_channel_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -168,6 +170,9 @@ keys:
               convert_types:
               - str
               description: Vlan tag to configure on sub-interface
+            forwarding_profile:
+              type: str
+              description: L2 protocol forwarding profile
         mtu:
           type: int
           convert_types:
@@ -667,6 +672,12 @@ keys:
             sampled:
               type: str
               description: Flow tracker name
+        bgp:
+          type: dict
+          keys:
+            session_tracker:
+              type: str
+              description: Name of session tracker
         peer:
           type: str
           description: Key only used for documentation or validation purposes
@@ -676,6 +687,18 @@ keys:
         peer_type:
           type: str
           description: Key only used for documentation or validation purposes
+        sflow:
+          type: dict
+          keys:
+            enable:
+              type: bool
+            egress:
+              type: dict
+              keys:
+                enable:
+                  type: bool
+                unmodified_enable:
+                  type: bool
         eos_cli:
           type: str
           description: Multiline EOS CLI rendered directly on the port-channel interface in the final EOS configuration

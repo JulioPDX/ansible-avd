@@ -1,8 +1,8 @@
 from ansible_collections.arista.avd.plugins.plugin_utils.avdfacts import AvdFacts
-from ansible_collections.arista.avd.roles.eos_designs.python_modules.interface_descriptions import load_interfacedescriptions
-from ansible_collections.arista.avd.roles.eos_designs.python_modules.ip_addressing import load_ip_addressing
 
+from .cvx import CvxMixin
 from .ip_extcommunity_lists import IpExtCommunityListsMixin
+from .management_cvx import ManagementCvxMixin
 from .route_maps import RouteMapsMixin
 from .router_bfd import RouterBfdMixin
 from .router_bgp import RouterBgpMixin
@@ -10,7 +10,9 @@ from .router_bgp import RouterBgpMixin
 
 class AvdStructuredConfig(
     AvdFacts,
+    CvxMixin,
     IpExtCommunityListsMixin,
+    ManagementCvxMixin,
     RouterBfdMixin,
     RouterBgpMixin,
     RouteMapsMixin,
@@ -28,18 +30,21 @@ class AvdStructuredConfig(
     The order of the @cached_properties methods imported from Mixins will also control the order in the output.
     """
 
-    def __init__(self, hostvars, templar):
-        super().__init__(hostvars, templar)
-        self._avd_ip_addressing = load_ip_addressing(hostvars, templar)
-        self._avd_interface_descriptions = load_interfacedescriptions(hostvars, templar)
-
     def render(self) -> dict:
         """
         Wrap class render function with a check if one of the following vars are True:
-        - switch.overlay.evpn
-        - switch.overlay.vpn_ipv4
-        - switch.overlay.vpn_ipv6
+        - overlay_cvx
+        - overlay_evpn
+        - overlay_vpn_ipv4
+        - overlay_vpn_ipv6
         """
-        if self._overlay_evpn is True or self._overlay_vpn_ipv4 is True or self._overlay_vpn_ipv6 is True:
+        if any(
+            [
+                self.shared_utils.overlay_cvx,
+                self.shared_utils.overlay_evpn,
+                self.shared_utils.overlay_vpn_ipv4,
+                self.shared_utils.overlay_vpn_ipv6,
+            ]
+        ):
             return super().render()
         return {}

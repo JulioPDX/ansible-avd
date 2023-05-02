@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import NoReturn
 
 from ansible_collections.arista.avd.plugins.plugin_utils.errors import AristaAvdError
+from ansible_collections.arista.avd.plugins.plugin_utils.utils import get_item
 
 from .utils import UtilsMixin
 
@@ -15,7 +16,7 @@ class VrfsMixin(UtilsMixin):
     """
 
     @cached_property
-    def vrfs(self) -> dict | None:
+    def vrfs(self) -> list | None:
         """
         Return structured config for vrfs.
 
@@ -25,25 +26,29 @@ class VrfsMixin(UtilsMixin):
         all Tenants deployed on this device.
         """
 
-        if not self._network_services_l3:
+        if not self.shared_utils.network_services_l3:
             return None
 
-        vrfs = {}
+        vrfs = []
+        vrf_names = []
         for tenant in self._filtered_tenants:
             for vrf in tenant["vrfs"]:
                 vrf_name = vrf["name"]
                 if vrf_name == "default":
                     continue
 
-                if vrf_name in vrfs:
-                    self._raise_duplicate_vrf_error(vrf_name, tenant["name"], vrfs[vrf_name])
+                if vrf_name in vrf_names:
+                    self._raise_duplicate_vrf_error(vrf_name, tenant["name"], get_item(vrfs, "name", vrf_name))
+
+                vrf_names.append(vrf_name)
 
                 new_vrf = {
+                    "name": vrf_name,
                     "tenant": tenant["name"],
                 }
 
                 # MLAG IBGP Peering VLANs per VRF
-                if self._overlay_mlag_rfc5549 and self._mlag_ibgp_peering_enabled(vrf, tenant):
+                if self.shared_utils.overlay_mlag_rfc5549 and self._mlag_ibgp_peering_enabled(vrf, tenant):
                     new_vrf["ip_routing_ipv6_interfaces"] = True
                 else:
                     new_vrf["ip_routing"] = True
@@ -54,7 +59,7 @@ class VrfsMixin(UtilsMixin):
                 if "description" in vrf:
                     new_vrf["description"] = vrf["description"]
 
-                vrfs[vrf_name] = new_vrf
+                vrfs.append(new_vrf)
 
         if vrfs:
             return vrfs

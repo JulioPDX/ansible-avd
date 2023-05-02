@@ -4,6 +4,8 @@
 type: dict
 keys:
   router_bgp:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       as:
@@ -167,6 +169,16 @@ keys:
               type: str
             shutdown:
               type: bool
+            as_path:
+              type: dict
+              description: BGP AS-PATH options
+              keys:
+                remote_as_replace_out:
+                  type: bool
+                  description: Replace AS number with local AS number
+                prepend_own_disabled:
+                  type: bool
+                  description: Disable prepending own AS number to AS path
             remove_private_as:
               type: dict
               description: Remove private AS numbers in outbound AS path
@@ -210,6 +222,8 @@ keys:
               type: bool
             password:
               type: str
+            passive:
+              type: bool
             default_originate:
               type: dict
               keys:
@@ -287,6 +301,8 @@ keys:
                 IP prefix range
                 note: `bgp_listen_range_prefix` and `peer_filter` will be deprecated in AVD v4.0
                 These should not be mixed with the new `listen_ranges` key above to avoid conflicts.
+            session_tracker:
+              type: str
       neighbors:
         type: list
         primary_key: ip_address
@@ -309,9 +325,21 @@ keys:
               description: BGP AS <1-4294967295> or AS number in asdot notation <1-65535>.<0-65535>
               convert_types:
                 - int
+            as_path:
+              type: dict
+              description: BGP AS-PATH options
+              keys:
+                remote_as_replace_out:
+                  type: bool
+                  description: Replace AS number with local AS number
+                prepend_own_disabled:
+                  type: bool
+                  description: Disable prepending own AS number to AS path
             description:
               type: str
             route_reflector_client:
+              type: bool
+            passive:
               type: bool
             shutdown:
               type: bool
@@ -416,6 +444,8 @@ keys:
                   type: bool
                 replace_as:
                   type: bool
+            session_tracker:
+              type: str
       neighbor_interfaces:
         type: list
         primary_key: name
@@ -756,6 +786,11 @@ keys:
                   description: Outbound route-map name
                 domain_remote:
                   type: bool
+                encapsulation:
+                  type: str
+                  valid_values:
+                    - "vxlan"
+                    - "mpls"
           evpn_hostflap_detection:
             type: dict
             keys:
@@ -1265,6 +1300,8 @@ keys:
                       - int
                   password:
                     type: str
+                  passive:
+                    type: bool
                   remove_private_as:
                     type: dict
                     description: Remove private AS numbers in outbound AS path
@@ -1293,8 +1330,20 @@ keys:
                     description: BGP AS <1-4294967295> or AS number in asdot notation <1-65535>.<0-65535>
                     convert_types:
                       - int
+                  as_path:
+                    type: dict
+                    description: BGP AS-PATH options
+                    keys:
+                      remote_as_replace_out:
+                        type: bool
+                        description: Replace AS number with local AS number
+                      prepend_own_disabled:
+                        type: bool
+                        description: Disable prepending own AS number to AS path
                   description:
                     type: str
+                  route_reflector_client:
+                    type: bool
                   ebgp_multihop:
                     type: int
                     min: 1
@@ -1510,3 +1559,19 @@ keys:
               type: str
               description: |
                 Multiline EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration
+      session_trackers:
+        type: list
+        primary_key: name
+        items:
+          type: dict
+          keys:
+            name:
+              type: str
+              description: Name of session tracker
+            recovery_delay:
+              type: int
+              description: Recovery delay in seconds
+              convert_types:
+                - str
+              min: 1
+              max: 3600

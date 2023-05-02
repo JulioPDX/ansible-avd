@@ -4,6 +4,8 @@
 type: dict
 keys:
   vlan_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -93,8 +95,11 @@ keys:
           type: str
           description: |
             IPv6_address/Mask
-            "ipv6_address_virtual" key will be deprecated in AVD v4.0 in favor of the new "ipv6_address_virtuals"
             If both "ipv6_address_virtual" and "ipv6_address_virtuals" are set, all addresses will be configured
+          deprecation:
+            warning: true
+            new_key: ipv6_address_virtuals
+            remove_in_version: "5.0.0"
         ipv6_address_virtuals:
           type: list
           description: The new "ipv6_address_virtuals" key support multiple virtual ipv6 addresses.
@@ -142,6 +147,27 @@ keys:
                 - int
               no_autoconfig_flag:
                 type: bool
+        ipv6_dhcp_relay_destinations:
+          type: list
+          primary_key: address
+          items:
+            type: dict
+            keys:
+              address:
+                type: str
+                description: DHCP server's IPv6 address
+                required: true
+              vrf:
+                type: str
+              local_interface:
+                type: str
+                description: Local interface to communicate with DHCP server - mutually exclusive to source_address
+              source_address:
+                type: str
+                description: Source IPv6 address to communicate with DHCP server - mutually exclusive to local_interface
+              link_address:
+                type: str
+                description: Override the default link address specified in the relayed DHCP packet
         access_group_in:
           type: str
           description: IPv4 access-list name
@@ -414,6 +440,9 @@ keys:
         ip_attached_host_route_export:
           type: dict
           keys:
+            enabled:
+              type: bool
+              required: true
             distance:
               type: int
               convert_types:

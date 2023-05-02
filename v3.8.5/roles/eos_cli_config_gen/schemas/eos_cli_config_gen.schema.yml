@@ -1,7 +1,10 @@
+$id: eos_cli_config_gen
 type: dict
 allow_other_keys: true
 keys:
   aaa_accounting:
+    documentation_options:
+      filename: data_model/Authentication
     type: dict
     keys:
       exec:
@@ -41,6 +44,20 @@ keys:
                 type: str
                 valid_values:
                 - none
+                - start-stop
+                - stop-only
+              group:
+                description: Group Name
+                type: str
+      dot1x:
+        type: dict
+        keys:
+          default:
+            type: dict
+            keys:
+              type:
+                type: str
+                valid_values:
                 - start-stop
                 - stop-only
               group:
@@ -95,6 +112,8 @@ keys:
             type: list
             description: Deprecated and removed key from AVD 2.x
   aaa_authentication:
+    documentation_options:
+      filename: data_model/Authentication
     type: dict
     keys:
       login:
@@ -190,8 +209,15 @@ keys:
                 convert_types:
                 - str
   aaa_authorization:
+    documentation_options:
+      filename: data_model/Authentication
     type: dict
     keys:
+      policy:
+        type: dict
+        keys:
+          local_default_role:
+            type: str
       exec:
         type: dict
         keys:
@@ -212,6 +238,14 @@ keys:
         type: bool
       serial_console:
         type: bool
+      dynamic:
+        type: dict
+        keys:
+          dot1x_additional_groups:
+            type: list
+            min_length: 1
+            items:
+              type: str
       commands:
         type: dict
         keys:
@@ -250,6 +284,8 @@ keys:
 
                     - "group tacacs+ group MYGROUP local"'
   aaa_root:
+    documentation_options:
+      filename: data_model/Authentication
     type: dict
     keys:
       secret:
@@ -258,6 +294,8 @@ keys:
           sha512_password:
             type: str
   aaa_server_groups:
+    documentation_options:
+      filename: data_model/Authentication
     type: list
     items:
       type: dict
@@ -283,6 +321,8 @@ keys:
                 type: str
                 description: VRF name
   access_lists:
+    documentation_options:
+      filename: data_model/ACLs
     type: list
     primary_key: name
     convert_types:
@@ -336,12 +376,56 @@ keys:
                 description: 'Action as string
 
                   Example: "deny ip any any"'
+  address_locking:
+    documentation_options:
+      filename: data_model/Address Locking
+    type: dict
+    keys:
+      dhcp_servers_ipv4:
+        type: list
+        items:
+          type: str
+          description: DHCP server IPv4 address
+      disabled:
+        type: bool
+        description: Disable IP locking on configured ports
+      leases:
+        type: list
+        items:
+          type: dict
+          keys:
+            ip:
+              type: str
+              required: true
+              description: IP address
+            mac:
+              type: str
+              required: true
+              description: MAC address (hhhh.hhhh.hhhh or hh:hh:hh:hh:hh:hh)
+      local_interface:
+        type: str
+      locked_address:
+        type: dict
+        keys:
+          expiration_mac_disabled:
+            type: bool
+            description: Configure deauthorizing locked addresses upon MAC aging out
+          ipv4_enforcement_disabled:
+            type: bool
+            description: Configure enforcement for locked IPv4 addresses
+          ipv6_enforcement_disabled:
+            type: bool
+            description: Configure enforcement for locked IPv6 addresses
   aliases:
+    documentation_options:
+      filename: data_model/Aliases
     type: str
     description: "Multi-line string with one or more alias commands.\n\nExample:\n\n```yaml\naliases:
       |\n  alias wr copy running-config startup-config\n  alias siib show ip interface
       brief\n```"
   arp:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       aging:
@@ -353,6 +437,8 @@ keys:
             min: 60
             max: 65535
   as_path:
+    documentation_options:
+      filename: data_model/Filters
     type: dict
     keys:
       regex_mode:
@@ -390,6 +476,8 @@ keys:
                     - incomplete
                     default: any
   banners:
+    documentation_options:
+      filename: data_model/Banners
     type: dict
     keys:
       login:
@@ -399,6 +487,8 @@ keys:
         type: str
         description: Multiline string ending with EOF on the last line
   bgp_groups:
+    documentation_options:
+      filename: data_model/Maintenance Mode
     type: list
     primary_key: name
     convert_types:
@@ -422,6 +512,8 @@ keys:
             type: str
             description: Profile Name
   boot:
+    documentation_options:
+      filename: data_model/System Boot Settings
     display_name: System Boot Settings
     description: 'Set the Aboot password
 
@@ -441,6 +533,8 @@ keys:
             description: Hashed Password
             type: str
   class_maps:
+    documentation_options:
+      filename: data_model/Quality of Service
     type: dict
     display_name: QOS Class-maps
     keys:
@@ -495,11 +589,15 @@ keys:
                   type: str
                   description: IPv6 Access-List Name
   clock:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       timezone:
         type: str
   community_lists:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     primary_key: name
     convert_types:
@@ -538,6 +636,8 @@ keys:
 
             Example: "permit GSHUT 65123:123"'
   custom_templates:
+    documentation_options:
+      filename: inputs/Role Inputs
     type: list
     display_name: Extensibility with Custom Templates
     description: "- Custom templates can be added below the playbook directory.\n-
@@ -546,12 +646,14 @@ keys:
       command:\n\n  ```bash\n  ln -s ../../shared_repo/custom_avd_templates/ ./custom_avd_templates\n
       \ ```\n\n- The output will be rendered at the end of the configuration.\n- The
       order of custom templates in the list can be important if they overlap.\n- It
-      is recommenended to use a `!` delimiter at the top of each custom template.\n\nAdd
+      is recommended to use a `!` delimiter at the top of each custom template.\n\nAdd
       `custom_templates` to group/host variables:\n"
     items:
       type: str
       description: Template relative path below playbook directory
   cvx:
+    documentation_options:
+      filename: data_model/Authentication
     type: dict
     description: CVX server features are not supported on physical switches. See `management_cvx`
       for client configurations.
@@ -586,14 +688,27 @@ keys:
                     default: '7'
               shutdown:
                 type: bool
+          vxlan:
+            type: dict
+            description: VXLAN Controller service
+            keys:
+              shutdown:
+                type: bool
+              vtep_mac_learning:
+                type: str
+                valid_values:
+                - control-plane
+                - data-plane
   daemon_terminattr:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     description: "You can either provide a list of IPs/FQDNs to target on-premise
       Cloudvision cluster or use DNS name for your Cloudvision as a Service instance.\nStreaming
-      to multiple clusters both on-prem and cloud service is supported.\n> Note For
-      TerminAttr version recommendation and EOS compatibility matrix, please refer
-      to the latest TerminAttr Release Notes\n  which always contain the latest recommended
-      versions and minimum required versions per EOS release.\n"
+      to multiple clusters both on-prem and cloud service is supported.\n\n!!! note\n
+      \   For TerminAttr version recommendation and EOS compatibility matrix, please
+      refer to the latest TerminAttr Release Notes\n    which always contain the latest
+      recommended versions and minimum required versions per EOS release.\n"
     keys:
       cvaddrs:
         type: list
@@ -646,6 +761,7 @@ keys:
                   - token
                   - token-secure
                   - key
+                  - certs
                 key:
                   type: str
                 token_file:
@@ -653,6 +769,27 @@ keys:
                   description: 'Token file path
 
                     e.g. "/tmp/token"
+
+                    '
+                cert_file:
+                  type: str
+                  description: 'Client certificate file path
+
+                    e.g. "/persist/secure/ssl/terminattr/primary/certs/client.crt"
+
+                    '
+                ca_file:
+                  type: str
+                  description: 'CA certificate file path (on-prem only)
+
+                    e.g. "/persist/secure/ssl/terminattr/primary/certs/ca.crt"
+
+                    '
+                key_file:
+                  type: str
+                  description: 'Client certificate key file path
+
+                    e.g. "/persist/secure/ssl/terminattr/primary/keys/client.key"
 
                     '
             cvobscurekeyfile:
@@ -665,13 +802,19 @@ keys:
               description: 'Proxy server through which CloudVision is reachable. Useful
                 when the CloudVision server is hosted in the cloud.
 
-                The expected form is http://[user:password@]ip:port, e.g.: ''http://arista:arista@10.83.12.78:3128''.
+                The expected form is http://[user:password@]ip:port, e.g.: `http://arista:arista@10.83.12.78:3128`.
                 Available as of TerminAttr v1.13.0
 
                 '
             cvsourceip:
               type: str
               description: 'Set source IP address in case of in-band managament
+
+                '
+            cvsourceintf:
+              type: str
+              description: 'Set source interface in case of in-band managament. Available
+                as of TerminAttr v1.23.0
 
                 '
             cvvrf:
@@ -691,6 +834,7 @@ keys:
             - token
             - token-secure
             - key
+            - certs
           key:
             type: str
           token_file:
@@ -698,6 +842,27 @@ keys:
             description: 'Token file path
 
               e.g. "/tmp/token"
+
+              '
+          cert_file:
+            type: str
+            description: 'Client certificate file path
+
+              e.g. "/persist/secure/ssl/terminattr/primary/certs/client.crt"
+
+              '
+          ca_file:
+            type: str
+            description: 'CA certificate file path (on-prem only)
+
+              e.g. "/persist/secure/ssl/terminattr/primary/certs/ca.crt"
+
+              '
+          key_file:
+            type: str
+            description: 'Client certificate key file path
+
+              e.g. "/persist/secure/ssl/terminattr/primary/keys/client.key"
 
               '
       cvobscurekeyfile:
@@ -710,13 +875,18 @@ keys:
         description: 'Proxy server through which CloudVision is reachable. Useful
           when the CloudVision server is hosted in the cloud.
 
-          The expected form is http://[user:password@]ip:port, e.g.: ''http://arista:arista@10.83.12.78:3128''.
+          The expected form is http://[user:password@]ip:port, e.g.: `http://arista:arista@10.83.12.78:3128`.
           Available as of TerminAttr v1.13.0
 
           '
       cvsourceip:
         type: str
         description: 'Set source IP address in case of in-band managament
+
+          '
+      cvsourceintf:
+        type: str
+        description: 'Set source interface in case of in-band managament
 
           '
       cvvrf:
@@ -842,6 +1012,8 @@ keys:
           '
         type: str
   daemons:
+    documentation_options:
+      filename: data_model/Monitoring
     type: list
     primary_key: name
     convert_types:
@@ -864,6 +1036,8 @@ keys:
           type: bool
           default: true
   dhcp_relay:
+    documentation_options:
+      filename: data_model/DHCP Relay
     type: dict
     keys:
       servers:
@@ -874,15 +1048,21 @@ keys:
       tunnel_requests_disabled:
         type: bool
   dns_domain:
+    documentation_options:
+      filename: data_model/Management
     type: str
     description: Domain Name
   domain_list:
+    documentation_options:
+      filename: data_model/Management
     type: list
     description: Search list of DNS domains
     items:
       type: str
       description: Domain name
   dot1x:
+    documentation_options:
+      filename: data_model/Endpoint Security
     type: dict
     display_name: Global 802.1x Authentication
     keys:
@@ -892,7 +1072,35 @@ keys:
         type: bool
       dynamic_authorization:
         type: bool
+      mac_based_authentication:
+        type: dict
+        keys:
+          delay:
+            type: int
+            min: 0
+            max: 300
+            convert_types:
+            - str
+          hold_period:
+            type: int
+            min: 1
+            max: 300
+            convert_types:
+            - str
+      radius_av_pair:
+        type: dict
+        keys:
+          service_type:
+            type: bool
+          framed_mtu:
+            type: int
+            min: 68
+            max: 9236
+            convert_types:
+            - str
   dynamic_prefix_lists:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     items:
       type: dict
@@ -913,6 +1121,8 @@ keys:
               type: str
               description: Prefix-list name
   enable_password:
+    documentation_options:
+      filename: data_model/Authentication
     type: dict
     keys:
       hash_algorithm:
@@ -927,10 +1137,14 @@ keys:
           By default EOS salts the password, so the simplest is to generate the hash
           on an EOS device.'
   eos_cli:
+    documentation_options:
+      filename: data_model/EOS CLI
     type: str
     description: Multiline string with EOS CLI rendered directly on the root level
       of the final EOS configuration
   errdisable:
+    documentation_options:
+      filename: data_model/Errdisable
     type: dict
     keys:
       detect:
@@ -983,6 +1197,8 @@ keys:
             min: 30
             max: 86400
   ethernet_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -997,6 +1213,13 @@ keys:
           type: str
         shutdown:
           type: bool
+        load_interval:
+          type: int
+          min: 0
+          max: 600
+          convert_types:
+          - str
+          description: Interval in seconds for updating interface counters"
         speed:
           type: str
           description: Speed can be interface_speed or forced interface_speed or auto
@@ -1061,6 +1284,9 @@ keys:
               convert_types:
               - str
               description: Vlan tag to configure on sub-interface
+            forwarding_profile:
+              type: str
+              description: L2 protocol forwarding profile
         trunk_groups:
           type: list
           items:
@@ -1079,6 +1305,15 @@ keys:
             '
         snmp_trap_link_change:
           type: bool
+        address_locking:
+          type: dict
+          keys:
+            ipv4:
+              type: bool
+              description: Enable address locking for IPv4
+            ipv6:
+              type: bool
+              description: Enable address locking for IPv6
         flowcontrol:
           type: dict
           keys:
@@ -1296,6 +1531,30 @@ keys:
                 description: Infinite or lifetime in seconds
               no_autoconfig_flag:
                 type: bool
+        ipv6_dhcp_relay_destinations:
+          type: list
+          primary_key: address
+          items:
+            type: dict
+            keys:
+              address:
+                type: str
+                description: DHCP server's IPv6 address
+                required: true
+              vrf:
+                type: str
+              local_interface:
+                type: str
+                description: Local interface to communicate with DHCP server - mutually
+                  exclusive to source_address
+              source_address:
+                type: str
+                description: Source IPv6 address to communicate with DHCP server -
+                  mutually exclusive to local_interface
+              link_address:
+                type: str
+                description: Override the default link address specified in the relayed
+                  DHCP packet
         access_group_in:
           type: str
           description: Access list name
@@ -1365,7 +1624,7 @@ keys:
           - message-digest
         ospf_authentication_key:
           type: str
-          description: Encrypted password
+          description: Encrypted password - only type 7 supported
         ospf_message_digest_keys:
           type: list
           primary_key: id
@@ -1389,7 +1648,7 @@ keys:
                 - sha512
               key:
                 type: str
-                description: Encrypted password
+                description: Encrypted password - only type 7 supported
         pim:
           type: dict
           keys:
@@ -1449,6 +1708,93 @@ keys:
         isis_authentication_key:
           type: str
           description: Type-7 encrypted password
+        poe:
+          type: dict
+          keys:
+            disabled:
+              type: bool
+              description: Disable PoE on a POE capable port. PoE is enabled on all
+                ports that support it by default in EOS.
+              default: false
+            priority:
+              type: str
+              valid_values:
+              - critical
+              - high
+              - medium
+              - low
+              description: Prioritize a port's power in the event that one of the
+                switch's power supplies loses power
+            reboot:
+              description: Set the PoE power behavior for a PoE port when the system
+                is rebooted
+              type: dict
+              keys:
+                action:
+                  type: str
+                  valid_values:
+                  - maintain
+                  - power-off
+                  description: PoE action for interface
+            link_down:
+              description: Set the PoE power behavior for a PoE port when the port
+                goes down
+              type: dict
+              keys:
+                action:
+                  type: str
+                  valid_values:
+                  - maintain
+                  - power-off
+                  description: PoE action for interface
+                power_off_delay:
+                  type: int
+                  min: 1
+                  max: 86400
+                  convert_types:
+                  - str
+                  description: Number of seconds to delay shutting the power off after
+                    a link down event occurs. Default value is 5 seconds in EOS.
+            shutdown:
+              description: Set the PoE power behavior for a PoE port when the port
+                is admin down
+              type: dict
+              keys:
+                action:
+                  type: str
+                  valid_values:
+                  - maintain
+                  - power-off
+                  description: PoE action for interface
+            limit:
+              type: dict
+              description: Override the hardware-negotiated power limit using either
+                wattage or a power class. Note that if using a power class, AVD will
+                automatically convert the class value to the wattage value corresponding
+                to that power class.
+              keys:
+                class:
+                  type: int
+                  min: 0
+                  max: 8
+                  convert_types:
+                  - str
+                watts:
+                  type: str
+                  convert_types:
+                  - int
+                  - float
+                fixed:
+                  type: bool
+                  description: Set to ignore hardware classification
+            negotiation_lldp:
+              type: bool
+              description: Disable to prevent port from negotiating power with powered
+                devices over LLDP. Enabled by default in EOS.
+            legacy_detect:
+              type: bool
+              description: Allow a subset of legacy devices to work with the PoE switch.
+                Disabled by default in EOS because it can cause false positive detections.
         ptp:
           type: dict
           keys:
@@ -1706,6 +2052,22 @@ keys:
               max: 10
               convert_types:
               - str
+            eapol:
+              type: dict
+              keys:
+                disabled:
+                  type: bool
+                authentication_failure_fallback_mba:
+                  type: dict
+                  keys:
+                    enabled:
+                      type: bool
+                    timeout:
+                      type: int
+                      min: 0
+                      max: 65535
+                      convert_types:
+                      - str
         service_profile:
           type: str
           description: QOS profile
@@ -1882,6 +2244,12 @@ keys:
             output:
               type: str
               description: Egress traffic policy
+        bgp:
+          type: dict
+          keys:
+            session_tracker:
+              type: str
+              description: Name of session tracker
         peer:
           type: str
           description: Key only used for documentation or validation purposes
@@ -1891,11 +2259,28 @@ keys:
         peer_type:
           type: str
           description: Key only used for documentation or validation purposes
+        sflow:
+          type: dict
+          keys:
+            enable:
+              type: bool
+            egress:
+              type: dict
+              keys:
+                enable:
+                  type: bool
+                unmodified_enable:
+                  type: bool
+        port_profile:
+          type: str
+          description: Key only used for documentation or validation purposes
         eos_cli:
           type: str
           description: Multiline EOS CLI rendered directly on the ethernet interface
             in the final EOS configuration
   event_handlers:
+    documentation_options:
+      filename: data_model/Monitoring
     type: list
     primary_key: name
     convert_types:
@@ -1929,6 +2314,7 @@ keys:
             '
           valid_values:
           - on-logging
+          - on-startup-config
         regex:
           type: str
           description: 'Regular expression to use for searching log messages. Required
@@ -1940,11 +2326,15 @@ keys:
           default: false
           description: Set the action to be non-blocking.
   event_monitor:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     keys:
       enabled:
         type: bool
   flow_trackings:
+    documentation_options:
+      filename: data_model/Flow Tracking
     type: list
     primary_key: type
     items:
@@ -2034,6 +2424,8 @@ keys:
           type: bool
           default: false
   generate_default_config:
+    documentation_options:
+      filename: inputs/Role Inputs
     type: bool
     default: true
     description: 'The `generate_default_config` knob allows to omit default EOS configuration.
@@ -2058,9 +2450,13 @@ keys:
 
       - End of configuration delimiter'
   generate_device_documentation:
+    documentation_options:
+      filename: inputs/Role Inputs
     type: bool
     default: true
   hardware:
+    documentation_options:
+      filename: data_model/Hardware
     type: dict
     keys:
       access_list:
@@ -2089,13 +2485,119 @@ keys:
               type: str
               description: Serdes speed like "10g" or "25g"
   hardware_counters:
+    documentation_options:
+      filename: data_model/Hardware
     type: dict
     keys:
       features:
         type: list
+        description: "This data model allows to configure the list of hardware counters
+          feature\navailable on Arista platforms.\n\nThe `name` key accepts a list
+          of valid_values which MUST be updated to support\nnew feature as they are
+          released in EOS.\n\nThe available values of the different keys like 'direction'
+          or 'address_type'\nare feature and hardware dependent and this model DOES
+          NOT validate that the\ncombinations are valid. It is the responsability
+          of the user of this data model\nto make sure that the rendered CLI is accepted
+          by the targeted device.\n\nExamples:\n\n  * Use:\n    ```yaml\n    hardware_counters:\n
+          \     features:\n        - name: ip\n          direction: out\n          layer3:
+          true\n          units_packets: true\n    ```\n\n    to render:\n    ```eos\n
+          \   hardware counter feature ip out layer3 units packets\n    ```\n  * Use:\n
+          \   ```yaml\n    hardware_counters:\n      features:\n        - name: route\n
+          \         address_type: ipv4\n          vrf: test\n          prefix: 192.168.0.0/24\n
+          \   ```\n\n    to render:\n    ```eos\n    hardware counter feature route
+          ipv4 vrf test 192.168.0.0/24\n    ```\n"
         items:
           type: dict
+          keys:
+            name:
+              type: str
+              valid_values:
+              - acl
+              - decap-group
+              - directflow
+              - ecn
+              - flow-spec
+              - gre tunnel interface
+              - ip
+              - mpls interface
+              - mpls lfib
+              - mpls tunnel
+              - multicast
+              - nexthop
+              - pbr
+              - pdp
+              - policing interface
+              - qos
+              - qos dual-rate-policer
+              - route
+              - routed-port
+              - subinterface
+              - tapagg
+              - traffic-class
+              - traffic-policy
+              - vlan
+              - vlan-interface
+              - vni decap
+              - vni encap
+              - vtep decap
+              - vtep encap
+            direction:
+              type: str
+              valid_values:
+              - in
+              - out
+              - cpu
+              description: 'Most features support only ''in'' and ''out''. Some like
+                traffic-policy support ''cpu''.
+
+                Some features DO NOT have any direction.
+
+                This validation IS NOT made by the schemas.
+
+                '
+            address_type:
+              type: str
+              valid_values:
+              - ipv4
+              - ipv6
+              - mac
+              description: 'Supported only for the following features:
+
+                - acl: [ipv4, ipv6, mac] if direction is ''out''
+
+                - multicast: [ipv4, ipv6]
+
+                - route: [ipv4, ipv6]
+
+                This validation IS NOT made by the schemas.
+
+                '
+            layer3:
+              type: bool
+              description: 'Supported only for the ''ip'' feature
+
+                '
+            vrf:
+              type: str
+              description: 'Supported only for the ''route'' feature.
+
+                This validation IS NOT made by the schemas.
+
+                '
+            prefix:
+              type: str
+              description: 'Supported only for the ''route'' feature.
+
+                Mandatory for the ''route'' feature.
+
+                This validation IS NOT made by the schemas.
+
+                '
+            units_packets:
+              type: bool
   interface_defaults:
+    documentation_options:
+      filename: data_model/Interfaces
     type: dict
     keys:
       ethernet:
@@ -2108,6 +2610,8 @@ keys:
         convert_types:
         - str
   interface_groups:
+    documentation_options:
+      filename: data_model/Maintenance Mode
     type: list
     display_name: Maintenance Interface Groups
     primary_key: name
@@ -2136,6 +2640,8 @@ keys:
             type: str
             description: Name of Interface Maintenance Profile
   interface_profiles:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -2156,6 +2662,8 @@ keys:
 
               Example: "switchport mode access"'
   ip_access_lists:
+    documentation_options:
+      filename: data_model/ACLs
     type: list
     primary_key: name
     convert_types:
@@ -2332,6 +2840,8 @@ keys:
                 type: str
                 description: 0x000-0xFFF VLAN mask.
   ip_access_lists_max_entries:
+    documentation_options:
+      filename: data_model/ACLs
     type: int
     convert_types:
     - str
@@ -2348,21 +2858,52 @@ keys:
       guidance. Note that other EOS features may use the same hardware resources and
       affect the supported scale.'
   ip_community_lists:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     secondary_key: entries
     primary_key: name
     convert_types:
     - dict
     display_name: IP Community Lists
-    description: "AVD supports 2 different data models for community lists:\n\n- The
-      legacy `community_lists` data model that can be used for compatibility with
-      the existing deployments.\n- The improved `ip_community_lists` data model.\n\nBoth
-      data models can coexist without conflicts, as different keys are used: `community_lists`
-      vs `ip_community_lists`.\nCommunity list names must be unique.\n\nThe improved
-      data model has a better design documented below:\n\ncommunities and regexp MUST
-      not be configured together in the same entry\npossible community strings are
-      (case insensitive):\n - GSHUT\n - internet\n - local-as\n - no-advertise\n -
-      no-export\n - <1-4294967040>\n - aa:nn\n"
+    description: 'AVD supports 2 different data models for community lists:
+
+
+      - The legacy `community_lists` data model that can be used for compatibility
+      with the existing deployments.
+
+      - The improved `ip_community_lists` data model.
+
+
+      Both data models can coexist without conflicts, as different keys are used:
+      `community_lists` vs `ip_community_lists`.
+
+      Community list names must be unique.
+
+
+      The improved data model has a better design documented below:
+
+
+      communities and regexp MUST not be configured together in the same entry
+
+      possible community strings are (case insensitive):
+
+
+      - GSHUT
+
+      - internet
+
+      - local-as
+
+      - no-advertise
+
+      - no-export
+
+      - <1-4294967040>
+
+      - aa:nn
+
+      '
     items:
       type: dict
       keys:
@@ -2393,12 +2934,16 @@ keys:
 
                   If defined, a regex community-list will be configured'
   ip_dhcp_relay:
+    documentation_options:
+      filename: data_model/IP DHCP Relay
     type: dict
     keys:
       information_option:
         type: bool
         description: Insert Option-82 information
   ip_domain_lookup:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       source_interfaces:
@@ -2418,6 +2963,8 @@ keys:
             vrf:
               type: str
   ip_extcommunity_lists:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     primary_key: name
     secondary_key: entries
@@ -2450,6 +2997,8 @@ keys:
 
                   Example: "65000:65000"'
   ip_extcommunity_lists_regexp:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     primary_key: name
     secondary_key: entries
@@ -2480,6 +3029,8 @@ keys:
                 required: true
                 description: Regular Expression
   ip_hardware:
+    documentation_options:
+      filename: data_model/IP Hardware
     type: dict
     keys:
       fib:
@@ -2497,6 +3048,8 @@ keys:
                     - internet
                     - urpf-internet
   ip_http_client_source_interfaces:
+    documentation_options:
+      filename: data_model/Management
     type: list
     items:
       type: dict
@@ -2507,8 +3060,12 @@ keys:
         vrf:
           type: str
   ip_icmp_redirect:
+    documentation_options:
+      filename: data_model/IP ICMP Redirect
     type: bool
   ip_igmp_snooping:
+    documentation_options:
+      filename: data_model/Multicast
     type: dict
     keys:
       globally_enabled:
@@ -2628,7 +3185,205 @@ keys:
               type: bool
               description: Global proxy settings should be enabled before enabling
                 per-vlan
+  ip_name_servers:
+    documentation_options:
+      filename: data_model/Management
+    type: list
+    items:
+      type: dict
+      keys:
+        ip_address:
+          type: str
+          description: IPv4 or IPv6 address for DNS server
+        vrf:
+          description: VRF Name
+          type: str
+        priority:
+          description: Priority value (lower is first)
+          type: int
+          convert_types:
+          - str
+          min: 0
+          max: 4
+  ip_nat:
+    documentation_options:
+      filename: data_model/IP NAT
+    type: dict
+    keys:
+      kernel_buffer_size:
+        type: int
+        convert_types:
+        - str
+        min: 1
+        max: 64
+        description: Buffer size in MB
+      pools:
+        type: list
+        primary_key: name
+        items:
+          type: dict
+          keys:
+            name:
+              type: str
+            prefix_length:
+              type: int
+              required: true
+              convert_types:
+              - str
+              min: 16
+              max: 32
+            ranges:
+              type: list
+              items:
+                type: dict
+                keys:
+                  first_ip:
+                    type: str
+                    required: true
+                    description: IPv4 address
+                  last_ip:
+                    type: str
+                    required: true
+                    description: IPv4 address
+                  first_port:
+                    type: int
+                    convert_types:
+                    - str
+                    min: 1
+                    max: 65535
+                  last_port:
+                    type: int
+                    convert_types:
+                    - str
+                    min: 1
+                    max: 65535
+            utilization_log_threshold:
+              type: int
+              convert_types:
+              - str
+              min: 1
+              max: 100
+      synchronization:
+        type: dict
+        keys:
+          description:
+            type: str
+          expiry_interval:
+            type: int
+            convert_types:
+            - str
+            min: 60
+            max: 3600
+            description: in seconds
+          local_interface:
+            type: str
+            description: EOS interface name
+          peer_address:
+            type: str
+            description: IPv4 address
+          port_range:
+            type: dict
+            keys:
+              first_port:
+                type: int
+                convert_types:
+                - str
+                min: 1024
+                max: 65535
+              last_port:
+                type: int
+                convert_types:
+                - str
+                min: 1024
+                max: 65535
+                description: '>= first_port'
+              split_disabled:
+                type: bool
+          shutdown:
+            type: bool
+      translation:
+        type: dict
+        keys:
+          address_selection:
+            type: dict
+            keys:
+              any:
+                type: bool
+              hash_field_source_ip:
+                type: bool
+          counters:
+            type: bool
+          low_mark:
+            type: dict
+            keys:
+              percentage:
+                type: int
+                convert_types:
+                - str
+                min: 1
+                max: 99
+                description: Used to render 'ip nat translation low-mark <percentage>'
+              host_percentage:
+                type: int
+                convert_types:
+                - str
+                min: 1
+                max: 99
+                description: Used to render 'ip nat translation low-mark <host_percentage>
+                  host'
+          max_entries:
+            type: dict
+            keys:
+              limit:
+                type: int
+                convert_types:
+                - str
+                min: 0
+                max: 4294967295
+              host_limit:
+                type: int
+                convert_types:
+                - str
+                min: 0
+                max: 4294967295
+              ip_limits:
+                type: list
+                primary_key: ip
+                items:
+                  type: dict
+                  keys:
+                    ip:
+                      type: str
+                      description: IPv4 address
+                    limit:
+                      type: int
+                      required: true
+                      convert_types:
+                      - str
+                      min: 0
+                      max: 4294967295
+          timeouts:
+            type: list
+            primary_key: protocol
+            items:
+              type: dict
+              keys:
+                protocol:
+                  type: str
+                  valid_values:
+                  - tcp
+                  - udp
+                timeout:
+                  type: int
+                  required: true
+                  convert_types:
+                  - str
+                  min: 0
+                  max: 4294967295
+                  description: in seconds
   ip_radius_source_interfaces:
+    documentation_options:
+      filename: data_model/Authentication
     type: list
     items:
       type: dict
@@ -2640,10 +3395,16 @@ keys:
           type: str
           description: VRF Name
   ip_routing:
+    documentation_options:
+      filename: data_model/Routing
     type: bool
   ip_routing_ipv6_interfaces:
+    documentation_options:
+      filename: data_model/Routing
     type: bool
   ip_ssh_client_source_interfaces:
+    documentation_options:
+      filename: data_model/Management
     type: list
     items:
       type: dict
@@ -2655,6 +3416,8 @@ keys:
           type: str
           default: default
   ip_tacacs_source_interfaces:
+    documentation_options:
+      filename: data_model/Authentication
     type: list
     display_name: IP Tacacs Source Interfaces
     items:
@@ -2667,9 +3430,13 @@ keys:
           type: str
           display_name: VRF
   ip_virtual_router_mac_address:
+    documentation_options:
+      filename: data_model/Routing
     type: str
     description: MAC address (hh:hh:hh:hh:hh:hh)
   ipv6_access_lists:
+    documentation_options:
+      filename: data_model/ACLs
     type: list
     primary_key: name
     convert_types:
@@ -2706,6 +3473,8 @@ keys:
 
                   Example: "deny ipv6 any any"'
   ipv6_hardware:
+    documentation_options:
+      filename: data_model/IPv6 Hardware
     type: dict
     keys:
       fib:
@@ -2722,8 +3491,12 @@ keys:
                     description: Pre-defined profile 'internet' or user-defined profile
                       name
   ipv6_icmp_redirect:
+    documentation_options:
+      filename: data_model/IP ICMP Redirect
     type: bool
   ipv6_prefix_lists:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     primary_key: name
     convert_types:
@@ -2757,6 +3530,8 @@ keys:
 
                   Example: "permit 1b11:3a00:22b0:0082::/64 eq 128"'
   ipv6_standard_access_lists:
+    documentation_options:
+      filename: data_model/ACLs
     type: list
     primary_key: name
     convert_types:
@@ -2792,6 +3567,8 @@ keys:
 
                   Example: "deny ipv6 any any"'
   ipv6_static_routes:
+    documentation_options:
+      filename: data_model/Routing
     type: list
     items:
       type: dict
@@ -2831,8 +3608,50 @@ keys:
           min: 0
           max: 4294967295
   ipv6_unicast_routing:
+    documentation_options:
+      filename: data_model/Routing
     type: bool
+  l2_protocol:
+    documentation_options:
+      filename: data_model/L2 Protocol Forwarding
+    type: dict
+    keys:
+      forwarding_profiles:
+        type: list
+        primary_key: name
+        items:
+          type: dict
+          keys:
+            name:
+              type: str
+              required: true
+            protocols:
+              type: list
+              primary_key: name
+              items:
+                type: dict
+                keys:
+                  name:
+                    type: str
+                    required: true
+                    valid_values:
+                    - bfd per-link rfc-7130
+                    - e-lmi
+                    - isis
+                    - lacp
+                    - lldp
+                    - macsec
+                    - pause
+                    - stp
+                  forward:
+                    type: bool
+                  tagged_forward:
+                    type: bool
+                  untagged_forward:
+                    type: bool
   lacp:
+    documentation_options:
+      filename: data_model/LACP
     type: dict
     description: Set Link Aggregation Control Protocol (LACP) parameters.
     keys:
@@ -2862,6 +3681,8 @@ keys:
         min: 0
         max: 65535
   link_tracking_groups:
+    documentation_options:
+      filename: data_model/Link Tracking Groups
     type: list
     primary_key: name
     convert_types:
@@ -2881,6 +3702,8 @@ keys:
           min: 0
           max: 3600
   lldp:
+    documentation_options:
+      filename: data_model/LLDP
     type: dict
     keys:
       timer:
@@ -2922,6 +3745,8 @@ keys:
       run:
         type: bool
   load_interval:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     keys:
       default:
@@ -2930,6 +3755,8 @@ keys:
         convert_types:
         - str
   local_users:
+    documentation_options:
+      filename: data_model/Authentication
     type: list
     primary_key: name
     convert_types:
@@ -2981,7 +3808,18 @@ keys:
             '
         ssh_key:
           type: str
+        shell:
+          type: str
+          description: 'Specify shell for the user
+
+            '
+          valid_values:
+          - /bin/bash
+          - /bin/sh
+          - /sbin/nologin
   logging:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     keys:
       console:
@@ -3190,6 +4028,8 @@ keys:
                       valid_values:
                       - discard
   loopback_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -3262,6 +4102,8 @@ keys:
           description: EOS CLI rendered directly on the loopback interface in the
             final EOS configuration
   mac_access_lists:
+    documentation_options:
+      filename: data_model/ACLs
     type: list
     primary_key: name
     convert_types:
@@ -3287,6 +4129,8 @@ keys:
               action:
                 type: str
   mac_address_table:
+    documentation_options:
+      filename: data_model/MAC Address-table
     type: dict
     keys:
       aging_time:
@@ -3315,6 +4159,8 @@ keys:
                 convert_types:
                 - str
   mac_security:
+    documentation_options:
+      filename: data_model/MAC Security
     type: dict
     display_name: MAC Security (MACsec)
     keys:
@@ -3407,6 +4253,8 @@ keys:
                       - bypass
                       - bypass unauthorized
   maintenance:
+    documentation_options:
+      filename: data_model/Maintenance Mode
     type: dict
     display_name: Maintenance Mode
     keys:
@@ -3540,6 +4388,8 @@ keys:
                     type: str
                     description: Name of Interface Group
   management_api_gnmi:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       provider:
@@ -3583,6 +4433,70 @@ keys:
                 ip_access_group:
                   type: str
                   description: ACL name
+          grpc_tunnels:
+            type: list
+            primary_key: name
+            items:
+              type: dict
+              keys:
+                name:
+                  type: str
+                  description: Transport name
+                shutdown:
+                  type: bool
+                  description: Operational status of the gRPC tunnel
+                tunnel_ssl_profile:
+                  type: str
+                  description: Tunnel SSL profile name
+                gnmi_ssl_profile:
+                  type: str
+                  description: gNMI SSL profile name
+                vrf:
+                  type: str
+                  description: VRF name
+                destination:
+                  type: dict
+                  keys:
+                    address:
+                      type: str
+                      required: true
+                      description: IP address or hostname
+                    port:
+                      type: int
+                      min: 1
+                      max: 65535
+                      required: true
+                      convert_types:
+                      - str
+                      description: TCP Port
+                local_interface:
+                  type: dict
+                  keys:
+                    name:
+                      type: str
+                      required: true
+                      description: Interface name
+                    port:
+                      type: int
+                      min: 1
+                      max: 65535
+                      required: true
+                      convert_types:
+                      - str
+                      description: TCP Port
+                target:
+                  type: dict
+                  keys:
+                    use_serial_number:
+                      type: bool
+                      description: Use serial number as the Target ID
+                    target_ids:
+                      type: list
+                      description: 'Target IDs as a list.
+
+                        '
+                      items:
+                        type: str
       enable_vrfs:
         type: list
         primary_key: name
@@ -3611,6 +4525,8 @@ keys:
           Octa activates `eos-native` provider and it is the only provider currently
           supported by EOS.'
   management_api_http:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       enable_http:
@@ -3651,6 +4567,8 @@ keys:
             type: str
             description: Name of private key; certificate must also be specified
   management_api_models:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       providers:
@@ -3674,6 +4592,8 @@ keys:
                     type: bool
                     default: false
   management_console:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       idle_timeout:
@@ -3683,6 +4603,8 @@ keys:
         convert_types:
         - str
   management_cvx:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       shutdown:
@@ -3695,7 +4617,12 @@ keys:
       source_interface:
         type: str
         description: Interface name
+      vrf:
+        type: str
+        description: VRF Name
   management_defaults:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       secret:
@@ -3707,6 +4634,8 @@ keys:
             - md5
             - sha512
   management_interfaces:
+    documentation_options:
+      filename: data_model/Management
     type: list
     primary_key: name
     convert_types:
@@ -3751,7 +4680,13 @@ keys:
         mac_address:
           type: str
           description: MAC address
+        eos_cli:
+          type: str
+          description: Multiline EOS CLI rendered directly on the management interface
+            in the final EOS configuration
   management_security:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       entropy_source:
@@ -3798,6 +4733,8 @@ keys:
                 key:
                   type: str
   management_ssh:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       access_groups:
@@ -3891,6 +4828,8 @@ keys:
         type: str
         description: SSH daemon log level
   management_tech_support:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       policy_show_tech_support:
@@ -3920,6 +4859,8 @@ keys:
                   type: str
                   description: Command to include in tech-support
   match_list_input:
+    documentation_options:
+      filename: data_model/Filters
     type: dict
     display_name: Match Lists
     keys:
@@ -3955,6 +4896,8 @@ keys:
                     required: true
                     description: Regular Expression
   mcs_client:
+    documentation_options:
+      filename: data_model/MCS Client
     type: dict
     keys:
       shutdown:
@@ -3972,6 +4915,8 @@ keys:
               type: str
               description: IP or hostname
   mlag_configuration:
+    documentation_options:
+      filename: data_model/MLAG
     type: dict
     display_name: Multi-Chassis Link Aggregation (MLAG) Configuration
     keys:
@@ -4032,6 +4977,8 @@ keys:
         convert_types:
         - int
   monitor_connectivity:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     keys:
       shutdown:
@@ -4111,6 +5058,8 @@ keys:
                   url:
                     type: str
   monitor_sessions:
+    documentation_options:
+      filename: data_model/Monitoring
     type: list
     convert_types:
     - dict
@@ -4198,6 +5147,8 @@ keys:
               convert_types:
               - str
   mpls:
+    documentation_options:
+      filename: data_model/MPLS
     type: dict
     keys:
       ip:
@@ -4215,6 +5166,12 @@ keys:
             description: Interface Name
             type: str
   name_server:
+    deprecation:
+      warning: true
+      new_key: ip_name_servers
+      remove_in_version: v5.0.0
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       source:
@@ -4228,6 +5185,8 @@ keys:
         items:
           type: str
   ntp:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       local_interface:
@@ -4324,6 +5283,8 @@ keys:
         type: str
         description: List of trusted-keys as string ex. 10-12,15
   patch_panel:
+    documentation_options:
+      filename: data_model/Patch Panel
     type: dict
     keys:
       patches:
@@ -4379,6 +5340,8 @@ keys:
                       '
                     required: true
   peer_filters:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     primary_key: name
     convert_types:
@@ -4412,6 +5375,8 @@ keys:
 
                   Example: "as-range 1-100 result accept"'
   platform:
+    documentation_options:
+      filename: data_model/Hardware
     type: dict
     keys:
       trident:
@@ -4460,7 +5425,38 @@ keys:
                 valid_values:
                 - ingress
                 - egress
+  poe:
+    documentation_options:
+      filename: data_model/Power over Ethernet
+    type: dict
+    keys:
+      reboot:
+        type: dict
+        description: Set the global PoE power behavior for PoE ports when the system
+          is rebooted.
+        keys:
+          action:
+            type: str
+            valid_values:
+            - power-off
+            - maintain
+            description: PoE action for interface. By default in EOS, reboot action
+              is set to power-off.
+      interface_shutdown:
+        type: dict
+        description: Set the global PoE power behavior for PoE ports when ports are
+          admin down
+        keys:
+          action:
+            type: str
+            valid_values:
+            - power-off
+            - maintain
+            description: PoE action for interface. By default in EOS, interface shutdown
+              action is set to maintain.
   policy_maps:
+    documentation_options:
+      filename: data_model/Quality of Service
     type: dict
     keys:
       pbr:
@@ -4552,6 +5548,8 @@ keys:
                         convert_types:
                         - str
   port_channel_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -4726,6 +5724,9 @@ keys:
               convert_types:
               - str
               description: Vlan tag to configure on sub-interface
+            forwarding_profile:
+              type: str
+              description: L2 protocol forwarding profile
         mtu:
           type: int
           convert_types:
@@ -5252,6 +6253,12 @@ keys:
             sampled:
               type: str
               description: Flow tracker name
+        bgp:
+          type: dict
+          keys:
+            session_tracker:
+              type: str
+              description: Name of session tracker
         peer:
           type: str
           description: Key only used for documentation or validation purposes
@@ -5261,11 +6268,25 @@ keys:
         peer_type:
           type: str
           description: Key only used for documentation or validation purposes
+        sflow:
+          type: dict
+          keys:
+            enable:
+              type: bool
+            egress:
+              type: dict
+              keys:
+                enable:
+                  type: bool
+                unmodified_enable:
+                  type: bool
         eos_cli:
           type: str
           description: Multiline EOS CLI rendered directly on the port-channel interface
             in the final EOS configuration
   prefix_lists:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     primary_key: name
     convert_types:
@@ -5299,8 +6320,12 @@ keys:
 
                   Example: "permit 10.255.0.0/27 eq 32"'
   prompt:
+    documentation_options:
+      filename: data_model/Prompt
     type: str
   ptp:
+    documentation_options:
+      filename: data_model/PTP
     type: dict
     keys:
       mode:
@@ -5450,6 +6475,8 @@ keys:
                     convert_types:
                     - str
   qos:
+    documentation_options:
+      filename: data_model/Quality of Service
     type: dict
     keys:
       map:
@@ -5479,6 +6506,8 @@ keys:
       rewrite_dscp:
         type: bool
   qos_profiles:
+    documentation_options:
+      filename: data_model/Quality of Service
     type: list
     primary_key: name
     convert_types:
@@ -5633,6 +6662,8 @@ keys:
 
                       Example: "< rate > kbps", "1-100 percent", "< rate > pps"'
   queue_monitor_length:
+    documentation_options:
+      filename: data_model/Quality of Service
     type: dict
     keys:
       enabled:
@@ -5668,6 +6699,8 @@ keys:
                 convert_types:
                 - str
   queue_monitor_streaming:
+    documentation_options:
+      filename: data_model/Quality of Service
     type: dict
     keys:
       enable:
@@ -5686,7 +6719,66 @@ keys:
         max: 100
       vrf:
         type: str
+  radius_server:
+    documentation_options:
+      filename: data_model/Authentication
+    type: dict
+    keys:
+      attribute_32_include_in_access_req:
+        type: dict
+        keys:
+          hostname:
+            type: bool
+          format:
+            type: str
+            description: Specify the format of the NAS-Identifier. If 'hostname' is
+              set, this is ignored.
+      dynamic_authorization:
+        type: dict
+        keys:
+          port:
+            type: int
+            min: 0
+            max: 65535
+            convert_types:
+            - str
+            description: TCP Port
+          tls_ssl_profile:
+            type: str
+            description: Name of TLS profile
+      hosts:
+        type: list
+        primary_key: host
+        items:
+          type: dict
+          keys:
+            host:
+              type: str
+              description: Host IP address or name
+            vrf:
+              type: str
+            timeout:
+              type: int
+              min: 1
+              max: 1000
+              convert_types:
+              - str
+            retransmit:
+              type: int
+              min: 0
+              max: 100
+              convert_types:
+              - str
+            key:
+              type: str
+              description: Encrypted key
   radius_servers:
+    deprecation:
+      warning: true
+      new_key: radius_server.hosts
+      remove_in_version: v5.0.0
+    documentation_options:
+      filename: data_model/Authentication
     type: list
     items:
       type: dict
@@ -5700,12 +6792,16 @@ keys:
           type: str
           description: Encrypted key
   redundancy:
+    documentation_options:
+      filename: data_model/Hardware
     type: dict
     keys:
       protocol:
         type: str
         description: Redundancy Protocol
   roles:
+    documentation_options:
+      filename: data_model/Authentication
     type: list
     items:
       type: dict
@@ -5737,6 +6833,8 @@ keys:
                 type: str
                 description: Command as string
   route_maps:
+    documentation_options:
+      filename: data_model/Filters
     type: list
     primary_key: name
     convert_types:
@@ -5804,6 +6902,8 @@ keys:
                     convert_types:
                     - str
   router_bfd:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       interval:
@@ -5862,6 +6962,8 @@ keys:
                 type: str
                 description: IPv4 address or 32 bit integer
   router_bgp:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       as:
@@ -6037,6 +7139,16 @@ keys:
               type: str
             shutdown:
               type: bool
+            as_path:
+              type: dict
+              description: BGP AS-PATH options
+              keys:
+                remote_as_replace_out:
+                  type: bool
+                  description: Replace AS number with local AS number
+                prepend_own_disabled:
+                  type: bool
+                  description: Disable prepending own AS number to AS path
             remove_private_as:
               type: dict
               description: Remove private AS numbers in outbound AS path
@@ -6085,6 +7197,8 @@ keys:
               type: bool
             password:
               type: str
+            passive:
+              type: bool
             default_originate:
               type: dict
               keys:
@@ -6173,6 +7287,8 @@ keys:
                 avoid conflicts.
 
                 '
+            session_tracker:
+              type: str
       neighbors:
         type: list
         primary_key: ip_address
@@ -6195,9 +7311,21 @@ keys:
               description: BGP AS <1-4294967295> or AS number in asdot notation <1-65535>.<0-65535>
               convert_types:
               - int
+            as_path:
+              type: dict
+              description: BGP AS-PATH options
+              keys:
+                remote_as_replace_out:
+                  type: bool
+                  description: Replace AS number with local AS number
+                prepend_own_disabled:
+                  type: bool
+                  description: Disable prepending own AS number to AS path
             description:
               type: str
             route_reflector_client:
+              type: bool
+            passive:
               type: bool
             shutdown:
               type: bool
@@ -6308,6 +7436,8 @@ keys:
                   type: bool
                 replace_as:
                   type: bool
+            session_tracker:
+              type: str
       neighbor_interfaces:
         type: list
         primary_key: name
@@ -6649,6 +7779,11 @@ keys:
                   description: Outbound route-map name
                 domain_remote:
                   type: bool
+                encapsulation:
+                  type: str
+                  valid_values:
+                  - vxlan
+                  - mpls
           evpn_hostflap_detection:
             type: dict
             keys:
@@ -7168,6 +8303,8 @@ keys:
                     - int
                   password:
                     type: str
+                  passive:
+                    type: bool
                   remove_private_as:
                     type: dict
                     description: Remove private AS numbers in outbound AS path
@@ -7197,8 +8334,20 @@ keys:
                       <1-65535>.<0-65535>
                     convert_types:
                     - int
+                  as_path:
+                    type: dict
+                    description: BGP AS-PATH options
+                    keys:
+                      remote_as_replace_out:
+                        type: bool
+                        description: Replace AS number with local AS number
+                      prepend_own_disabled:
+                        type: bool
+                        description: Disable prepending own AS number to AS path
                   description:
                     type: str
+                  route_reflector_client:
+                    type: bool
                   ebgp_multihop:
                     type: int
                     min: 1
@@ -7419,9 +8568,29 @@ keys:
                           type: str
             eos_cli:
               type: str
-              description: Multiline EOS CLI rendered directly on the Router BGP,
+              description: 'Multiline EOS CLI rendered directly on the Router BGP,
                 VRF definition in the final EOS configuration
+
+                '
+      session_trackers:
+        type: list
+        primary_key: name
+        items:
+          type: dict
+          keys:
+            name:
+              type: str
+              description: Name of session tracker
+            recovery_delay:
+              type: int
+              description: Recovery delay in seconds
+              convert_types:
+              - str
+              min: 1
+              max: 3600
   router_general:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     display_name: Router General configuration
     keys:
@@ -7471,12 +8640,16 @@ keys:
                         type: str
                         description: Dynamic Prefix List Name
   router_igmp:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     display_name: Router IGMP Configuration
     keys:
       ssm_aware:
         type: bool
   router_isis:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       instance:
@@ -7527,6 +8700,10 @@ keys:
           - ipv4 unicast
           - ipv6 unicast
           description: Address Family
+          deprecation:
+            warning: true
+            new_key: address_family_ipv4.enabled or address_family_ipv6.enabled
+            remove_in_version: 5.0.0
       isis_af_defaults:
         type: list
         items:
@@ -7536,6 +8713,10 @@ keys:
             Example "maximum-paths 64"
 
             '
+          deprecation:
+            warning: true
+            new_key: address_family_ipv4/address_family_ipv6
+            remove_in_version: 5.0.0
       redistribute_routes:
         type: list
         items:
@@ -7567,6 +8748,8 @@ keys:
       address_family_ipv4:
         type: dict
         keys:
+          enabled:
+            type: bool
           maximum_paths:
             type: int
             convert_types:
@@ -7605,6 +8788,8 @@ keys:
       address_family_ipv6:
         type: dict
         keys:
+          enabled:
+            type: bool
           maximum_paths:
             type: int
             convert_types:
@@ -7657,21 +8842,37 @@ keys:
         type: list
         description: Unused key - to be removed from eos_designs.
   router_l2_vpn:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
-      nd_rs_flooding_disabled:
-        type: bool
-      virtual_router_nd_ra_flooding_disabled:
-        type: bool
-      arp_selective_install:
+      arp_learning_bridged:
         type: bool
       arp_proxy:
         type: dict
         keys:
           prefix_list:
             type: str
-            description: Prefix-list Name
+            description: Prefix-list name. ARP Proxying is disabled for IPv4 addresses
+              defined in the prefix-list.
+      arp_selective_install:
+        type: bool
+      nd_learning_bridged:
+        type: bool
+      nd_proxy:
+        type: dict
+        keys:
+          prefix_list:
+            type: str
+            description: Prefix-list name. ND Proxying is disabled for IPv6 addresses
+              defined in the prefix-list.
+      nd_rs_flooding_disabled:
+        type: bool
+      virtual_router_nd_ra_flooding_disabled:
+        type: bool
   router_msdp:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       originator_id_local_interface:
@@ -7895,6 +9096,8 @@ keys:
                         type: str
                         description: ACL to filter outbound SA messages
   router_multicast:
+    documentation_options:
+      filename: data_model/Multicast
     type: dict
     keys:
       ipv4:
@@ -7966,6 +9169,8 @@ keys:
                 routing:
                   type: bool
   router_ospf:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     display_name: Router OSPF Configuration
     keys:
@@ -8137,18 +9342,24 @@ keys:
                     route_map:
                       type: str
                       description: Route Map Name
+                    include_leaked:
+                      type: bool
                 connected:
                   type: dict
                   keys:
                     route_map:
                       type: str
                       description: Route Map Name
+                    include_leaked:
+                      type: bool
                 bgp:
                   type: dict
                   keys:
                     route_map:
                       type: str
                       description: Route Map Name
+                    include_leaked:
+                      type: bool
             auto_cost_reference_bandwidth:
               type: int
               convert_types:
@@ -8250,6 +9461,8 @@ keys:
             mpls_ldp_sync_default:
               type: bool
   router_pim_sparse_mode:
+    documentation_options:
+      filename: data_model/Multicast
     type: dict
     keys:
       ipv4:
@@ -8363,6 +9576,8 @@ keys:
                       override:
                         type: bool
   router_traffic_engineering:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       router_id:
@@ -8449,16 +9664,22 @@ keys:
                                     convert_types:
                                     - str
   service_routing_configuration_bgp:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     keys:
       no_equals_default:
         type: bool
   service_routing_protocols_model:
+    documentation_options:
+      filename: data_model/Routing
     type: str
     valid_values:
     - multi-agent
     - ribd
   service_unsupported_transceiver:
+    documentation_options:
+      filename: data_model/Service Unsupported Transceiver
     type: dict
     keys:
       license_name:
@@ -8466,6 +9687,8 @@ keys:
       license_key:
         type: str
   sflow:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     keys:
       sample:
@@ -8587,6 +9810,8 @@ keys:
                   type: bool
                   default: true
   snmp_server:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     description: SNMP settings
     keys:
@@ -8865,6 +10090,8 @@ keys:
             enable:
               type: bool
   spanning_tree:
+    documentation_options:
+      filename: data_model/Spanning Tree
     type: dict
     keys:
       root_super:
@@ -8982,6 +10209,8 @@ keys:
               convert_types:
               - str
   standard_access_lists:
+    documentation_options:
+      filename: data_model/ACLs
     type: list
     primary_key: name
     convert_types:
@@ -9017,6 +10246,8 @@ keys:
 
                   Example: "deny ip any any"'
   static_routes:
+    documentation_options:
+      filename: data_model/Routing
     type: list
     items:
       type: dict
@@ -9057,6 +10288,8 @@ keys:
           min: 0
           max: 4294967295
   switchport_default:
+    documentation_options:
+      filename: data_model/Interfaces
     type: dict
     keys:
       mode:
@@ -9086,6 +10319,8 @@ keys:
             min: 1
             max: 4094
   system:
+    documentation_options:
+      filename: data_model/System Control-Plane
     type: dict
     keys:
       control_plane:
@@ -9125,6 +10360,8 @@ keys:
                 vrf:
                   type: str
   tacacs_servers:
+    documentation_options:
+      filename: data_model/Authentication
     type: dict
     keys:
       hosts:
@@ -9158,6 +10395,8 @@ keys:
       policy_unknown_mandatory_attribute_ignore:
         type: bool
   tap_aggregation:
+    documentation_options:
+      filename: data_model/Monitoring
     type: dict
     keys:
       mode:
@@ -9226,6 +10465,8 @@ keys:
             - discard
             - pass-through
   tcam_profile:
+    documentation_options:
+      filename: data_model/Hardware
     type: dict
     display_name: Hardware TCAM Profiles
     keys:
@@ -9253,8 +10494,10 @@ keys:
               description: 'TCAM Profile Config. Since these can be very long, it
                 is often a good idea to import the config from a file.
 
-                Example: "{{lookup(''file'', ''{{ root_dir }}/inventory/TCAM_TRAFFIC_POLICY.conf'')}}"'
+                Example: "{{ lookup(''file'', ''TCAM_TRAFFIC_POLICY.conf'') }}"'
   terminal:
+    documentation_options:
+      filename: data_model/Terminal Settings
     type: dict
     display_name: Terminal Settings
     keys:
@@ -9267,6 +10510,8 @@ keys:
         min: 10
         max: 32767
   trackers:
+    documentation_options:
+      filename: data_model/Monitoring
     type: list
     primary_key: name
     items:
@@ -9285,6 +10530,8 @@ keys:
           default: line-protocol
           description: Property to track
   traffic_policies:
+    documentation_options:
+      filename: data_model/Traffic Policies
     type: dict
     keys:
       options:
@@ -9314,6 +10561,7 @@ keys:
                     description: IPv4 Prefix
           ipv6:
             type: list
+            secondary_key: prefixes
             primary_key: name
             convert_types:
             - dict
@@ -9508,6 +10756,8 @@ keys:
                       type: bool
                       description: Only supported when action is set to drop
   tunnel_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -9594,6 +10844,8 @@ keys:
           description: Multiline String with EOS CLI rendered directly on the Tunnel
             interface in the final EOS configuration.
   virtual_source_nat_vrfs:
+    documentation_options:
+      filename: data_model/Virtual Source NAT
     type: list
     primary_key: name
     convert_types:
@@ -9608,6 +10860,8 @@ keys:
           type: str
           description: IPv4 Address
   vlan_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -9697,13 +10951,14 @@ keys:
           type: str
           description: 'IPv6_address/Mask
 
-            "ipv6_address_virtual" key will be deprecated in AVD v4.0 in favor of
-            the new "ipv6_address_virtuals"
-
             If both "ipv6_address_virtual" and "ipv6_address_virtuals" are set, all
             addresses will be configured
 
             '
+          deprecation:
+            warning: true
+            new_key: ipv6_address_virtuals
+            remove_in_version: 5.0.0
         ipv6_address_virtuals:
           type: list
           description: The new "ipv6_address_virtuals" key support multiple virtual
@@ -9756,6 +11011,30 @@ keys:
                 - int
               no_autoconfig_flag:
                 type: bool
+        ipv6_dhcp_relay_destinations:
+          type: list
+          primary_key: address
+          items:
+            type: dict
+            keys:
+              address:
+                type: str
+                description: DHCP server's IPv6 address
+                required: true
+              vrf:
+                type: str
+              local_interface:
+                type: str
+                description: Local interface to communicate with DHCP server - mutually
+                  exclusive to source_address
+              source_address:
+                type: str
+                description: Source IPv6 address to communicate with DHCP server -
+                  mutually exclusive to local_interface
+              link_address:
+                type: str
+                description: Override the default link address specified in the relayed
+                  DHCP packet
         access_group_in:
           type: str
           description: IPv4 access-list name
@@ -10034,6 +11313,9 @@ keys:
         ip_attached_host_route_export:
           type: dict
           keys:
+            enabled:
+              type: bool
+              required: true
             distance:
               type: int
               convert_types:
@@ -10089,6 +11371,8 @@ keys:
           description: Multiline EOS CLI rendered directly on the VLAN interface in
             the final EOS configuration
   vlan_internal_order:
+    documentation_options:
+      filename: data_model/VLAN Internal Order
     type: dict
     keys:
       allocation:
@@ -10103,21 +11387,23 @@ keys:
         keys:
           beginning:
             type: int
-            min: 1
+            min: 2
             max: 4094
             required: true
-            description: Vlan ID
+            description: First VLAN ID.
             convert_types:
             - str
           ending:
             type: int
-            min: 1
+            min: 2
             max: 4094
             required: true
-            description: Vlan ID
+            description: Last VLAN ID.
             convert_types:
             - str
   vlans:
+    documentation_options:
+      filename: data_model/VLANs
     type: list
     primary_key: id
     convert_types:
@@ -10160,6 +11446,8 @@ keys:
           type: str
           description: Key only used for documentation or validation purposes
   vmtracer_sessions:
+    documentation_options:
+      filename: data_model/System Control-Plane
     type: list
     primary_key: name
     convert_types:
@@ -10183,6 +11471,8 @@ keys:
         source_interface:
           type: str
   vrfs:
+    documentation_options:
+      filename: data_model/Routing
     type: list
     primary_key: name
     description: 'These keys are ignored if the name of the vrf is ''default''
@@ -10208,6 +11498,8 @@ keys:
           type: str
           description: Key only used for documentation or validation purposes
   vxlan_interface:
+    documentation_options:
+      filename: data_model/Interfaces
     type: dict
     keys:
       Vxlan1:
@@ -10221,6 +11513,12 @@ keys:
               source_interface:
                 type: str
                 description: Source Interface Name
+              controller_client:
+                type: dict
+                description: Client to CVX Controllers
+                keys:
+                  enabled:
+                    type: bool
               mlag_source_interface:
                 type: str
               udp_port:

@@ -4,6 +4,8 @@
 type: dict
 keys:
   router_ospf:
+    documentation_options:
+      filename: data_model/Routing
     type: dict
     display_name: Router OSPF Configuration
     keys:
@@ -171,18 +173,24 @@ keys:
                     route_map:
                       type: str
                       description: Route Map Name
+                    include_leaked:
+                      type: bool
                 connected:
                   type: dict
                   keys:
                     route_map:
                       type: str
                       description: Route Map Name
+                    include_leaked:
+                      type: bool
                 bgp:
                   type: dict
                   keys:
                     route_map:
                       type: str
                       description: Route Map Name
+                    include_leaked:
+                      type: bool
             auto_cost_reference_bandwidth:
               type: int
               convert_types:

@@ -12,13 +12,13 @@ class PrefixListsMixin(UtilsMixin):
     """
 
     @cached_property
-    def prefix_lists(self) -> dict | None:
+    def prefix_lists(self) -> list | None:
         """
         Return structured config for prefix_lists
 
         Only used for EVPN services in VRF "default"
         """
-        if not (self._network_services_l3 and self._overlay_vtep and self._overlay_evpn):
+        if not (self.shared_utils.network_services_l3 and self.shared_utils.overlay_vtep and self.shared_utils.overlay_evpn):
             return None
 
         subnets = self._vrf_default_ipv4_subnets
@@ -26,17 +26,18 @@ class PrefixListsMixin(UtilsMixin):
         if not subnets and not static_routes:
             return None
 
-        prefix_lists = {}
+        prefix_lists = []
         if subnets:
-            prefix_lists["PL-SVI-VRF-DEFAULT"] = {"sequence_numbers": {}}
+            prefix_list = {"name": "PL-SVI-VRF-DEFAULT", "sequence_numbers": []}
             for index, subnet in enumerate(subnets):
                 sequence = 10 * (index + 1)
-                prefix_lists["PL-SVI-VRF-DEFAULT"]["sequence_numbers"][sequence] = {"action": f"permit {subnet}"}
+                prefix_list["sequence_numbers"].append({"sequence": sequence, "action": f"permit {subnet}"})
+            prefix_lists.append(prefix_list)
 
         if static_routes:
-            prefix_lists["PL-STATIC-VRF-DEFAULT"] = {"sequence_numbers": {}}
+            prefix_list = {"name": "PL-STATIC-VRF-DEFAULT", "sequence_numbers": []}
             for index, static_route in enumerate(static_routes):
                 sequence = 10 * (index + 1)
-                prefix_lists["PL-STATIC-VRF-DEFAULT"]["sequence_numbers"][sequence] = {"action": f"permit {static_route}"}
-
+                prefix_list["sequence_numbers"].append({"sequence": sequence, "action": f"permit {static_route}"})
+            prefix_lists.append(prefix_list)
         return prefix_lists

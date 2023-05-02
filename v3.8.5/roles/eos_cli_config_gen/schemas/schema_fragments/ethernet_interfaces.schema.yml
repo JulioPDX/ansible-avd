@@ -4,6 +4,8 @@
 type: dict
 keys:
   ethernet_interfaces:
+    documentation_options:
+      filename: data_model/Interfaces
     type: list
     primary_key: name
     convert_types:
@@ -18,6 +20,13 @@ keys:
           type: str
         shutdown:
           type: bool
+        load_interval:
+          type: int
+          min: 0
+          max: 600
+          convert_types:
+          - str
+          description: Interval in seconds for updating interface counters"
         speed:
           type: str
           description: Speed can be interface_speed or forced interface_speed or auto interface_speed
@@ -69,6 +78,9 @@ keys:
               convert_types:
               - str
               description: Vlan tag to configure on sub-interface
+            forwarding_profile:
+              type: str
+              description: L2 protocol forwarding profile
         trunk_groups:
           type: list
           items:
@@ -81,6 +93,15 @@ keys:
             The parent interface should be defined as routed
         snmp_trap_link_change:
           type: bool
+        address_locking:
+          type: dict
+          keys:
+            ipv4:
+              type: bool
+              description: Enable address locking for IPv4
+            ipv6:
+              type: bool
+              description: Enable address locking for IPv6
         flowcontrol:
           type: dict
           keys:
@@ -288,6 +309,27 @@ keys:
                 description: Infinite or lifetime in seconds
               no_autoconfig_flag:
                 type: bool
+        ipv6_dhcp_relay_destinations:
+          type: list
+          primary_key: address
+          items:
+            type: dict
+            keys:
+              address:
+                type: str
+                description: DHCP server's IPv6 address
+                required: true
+              vrf:
+                type: str
+              local_interface:
+                type: str
+                description: Local interface to communicate with DHCP server - mutually exclusive to source_address
+              source_address:
+                type: str
+                description: Source IPv6 address to communicate with DHCP server - mutually exclusive to local_interface
+              link_address:
+                type: str
+                description: Override the default link address specified in the relayed DHCP packet
         access_group_in:
           type: str
           description: Access list name
@@ -353,7 +395,7 @@ keys:
           valid_values: ["none", "simple", "message-digest"]
         ospf_authentication_key:
           type: str
-          description: Encrypted password
+          description: Encrypted password - only type 7 supported
         ospf_message_digest_keys:
           type: list
           primary_key: id
@@ -372,7 +414,7 @@ keys:
                 valid_values: ["md5", "sha1", "sha256", "sha384", "sha512"]
               key:
                 type: str
-                description: Encrypted password
+                description: Encrypted password - only type 7 supported
         pim:
           type: dict
           keys:
@@ -424,6 +466,72 @@ keys:
         isis_authentication_key:
           type: str
           description: Type-7 encrypted password
+        poe:
+          type: dict
+          keys:
+            disabled:
+              type: bool
+              description: Disable PoE on a POE capable port. PoE is enabled on all ports that support it by default in EOS.
+              default: false
+            priority:
+              type: str
+              valid_values: ["critical", "high", "medium", "low"]
+              description: Prioritize a port's power in the event that one of the switch's power supplies loses power
+            reboot:
+              description: Set the PoE power behavior for a PoE port when the system is rebooted
+              type: dict
+              keys:
+                action:
+                  type: str
+                  valid_values: ["maintain", "power-off"]
+                  description: PoE action for interface
+            link_down:
+              description: Set the PoE power behavior for a PoE port when the port goes down
+              type: dict
+              keys:
+                action:
+                  type: str
+                  valid_values: ["maintain", "power-off"]
+                  description: PoE action for interface
+                power_off_delay:
+                  type: int
+                  min: 1
+                  max: 86400
+                  convert_types:
+                  - str
+                  description: Number of seconds to delay shutting the power off after a link down event occurs. Default value is 5 seconds in EOS.
+            shutdown:
+              description: Set the PoE power behavior for a PoE port when the port is admin down
+              type: dict
+              keys:
+                action:
+                  type: str
+                  valid_values: ["maintain", "power-off"]
+                  description: PoE action for interface
+            limit:
+              type: dict
+              description: Override the hardware-negotiated power limit using either wattage or a power class. Note that if using a power class, AVD will automatically convert the class value to the wattage value corresponding to that power class.
+              keys:
+                class:
+                  type: int
+                  min: 0
+                  max: 8
+                  convert_types:
+                  - str
+                watts:
+                  type: str
+                  convert_types:
+                  - int
+                  - float
+                fixed:
+                  type: bool
+                  description: Set to ignore hardware classification
+            negotiation_lldp:
+              type: bool
+              description: Disable to prevent port from negotiating power with powered devices over LLDP. Enabled by default in EOS.
+            legacy_detect:
+              type: bool
+              description: Allow a subset of legacy devices to work with the PoE switch. Disabled by default in EOS because it can cause false positive detections.
         ptp:
           type: dict
           keys:
@@ -654,6 +762,22 @@ keys:
               max: 10
               convert_types:
               - str
+            eapol:
+              type: dict
+              keys:
+                disabled:
+                  type: bool
+                authentication_failure_fallback_mba:
+                  type: dict
+                  keys:
+                    enabled:
+                      type: bool
+                    timeout:
+                      type: int
+                      min: 0
+                      max: 65535
+                      convert_types:
+                      - str
         service_profile:
           type: str
           description: QOS profile
@@ -802,6 +926,12 @@ keys:
             output:
               type: str
               description: Egress traffic policy
+        bgp:
+          type: dict
+          keys:
+            session_tracker:
+              type: str
+              description: Name of session tracker
         peer:
           type: str
           description: Key only used for documentation or validation purposes
@@ -809,6 +939,21 @@ keys:
           type: str
           description: Key only used for documentation or validation purposes
         peer_type:
+          type: str
+          description: Key only used for documentation or validation purposes
+        sflow:
+          type: dict
+          keys:
+            enable:
+              type: bool
+            egress:
+              type: dict
+              keys:
+                enable:
+                  type: bool
+                unmodified_enable:
+                  type: bool
+        port_profile:
           type: str
           description: Key only used for documentation or validation purposes
         eos_cli:

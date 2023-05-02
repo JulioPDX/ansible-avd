@@ -4,6 +4,8 @@
 type: dict
 keys:
   vxlan_interface:
+    documentation_options:
+      filename: data_model/Interfaces
     type: dict
     keys:
       Vxlan1:
@@ -17,6 +19,12 @@ keys:
               source_interface:
                 type: str
                 description: Source Interface Name
+              controller_client:
+                type: dict
+                description: Client to CVX Controllers
+                keys:
+                  enabled:
+                    type: bool
               mlag_source_interface:
                 type: str
               udp_port:
