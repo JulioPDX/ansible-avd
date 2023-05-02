@@ -1,5 +1,0 @@
-#### router multicast ####
-
-router_multicast:
-  ipv4:
-    routing: true
