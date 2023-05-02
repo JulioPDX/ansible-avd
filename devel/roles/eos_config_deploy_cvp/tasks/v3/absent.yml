@@ -1,6 +1,0 @@
----
-- name: "Unsupported option"
-  delegate_to: localhost
-  ansible.builtin.debug:
-    msg:
-      - "!!! Absent state not yet supported by Cloudvision collection."
