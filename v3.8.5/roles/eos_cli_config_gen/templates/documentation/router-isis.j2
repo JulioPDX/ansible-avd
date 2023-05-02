@@ -1,9 +1,8 @@
-{# doc - router isis #}
 {% if router_isis is arista.avd.defined %}
 
-### Router ISIS
+## Router ISIS
 
-#### Router ISIS Summary
+### Router ISIS Summary
 
 | Settings | Value |
 | -------- | ----- |
@@ -39,7 +38,7 @@
 {%     endif %}
 {%     if router_isis.redistribute_routes is arista.avd.defined %}
 
-#### ISIS Route Redistribution
+### ISIS Route Redistribution
 
 | Route Type | Route-Map | Include Leaked |
 | ---------- | --------- | -------------- |
@@ -61,13 +60,13 @@
 {%         endfor %}
 {%     endif %}
 
-#### ISIS Interfaces Summary
+### ISIS Interfaces Summary
 
 | Interface | ISIS Instance | ISIS Metric | Interface Mode |
 | --------- | ------------- | ----------- | -------------- |
 {# ethernet interfaces #}
 {# ------- #}
-{%     for ethernet_interface in ethernet_interfaces | arista.avd.natural_sort('name') %}
+{%     for ethernet_interface in ethernet_interfaces | arista.avd.convert_dicts('name') | arista.avd.natural_sort('name') %}
 {%         if ethernet_interface.isis_enable is arista.avd.defined %}
 {%             set row_isis_instance = ethernet_interface.isis_enable %}
 {%             set row_isis_metric = ethernet_interface.isis_metric | arista.avd.default('-') %}
@@ -84,7 +83,7 @@
 {# ------- #}
 {# vlan interfaces #}
 {# ------- #}
-{%     for vlan_interface in vlan_interfaces | arista.avd.natural_sort('name') %}
+{%     for vlan_interface in vlan_interfaces | arista.avd.convert_dicts('name') | arista.avd.natural_sort('name') %}
 {%         if vlan_interface.isis_enable is arista.avd.defined %}
 {%             set row_isis_instance = vlan_interface.isis_enable %}
 {%             set row_isis_metric = vlan_interface.isis_metric | arista.avd.default('-') %}
@@ -101,7 +100,7 @@
 {# ------- #}
 {# loopback interfaces #}
 {# ------- #}
-{%     for loopback_interface in loopback_interfaces | arista.avd.natural_sort('name') %}
+{%     for loopback_interface in loopback_interfaces | arista.avd.convert_dicts('name') | arista.avd.natural_sort('name') %}
 {%         if loopback_interface.isis_enable is arista.avd.defined %}
 {%             set row_isis_instance = loopback_interface.isis_enable %}
 {%             set row_isis_metric = loopback_interface.isis_metric | arista.avd.default('-') %}
@@ -117,14 +116,14 @@
 {%     endfor %}
 {# ISIS Node-SID #}
 {%     set node_sid_loopbacks = [] %}
-{%     for loopback_interface in loopback_interfaces | arista.avd.natural_sort('name') %}
+{%     for loopback_interface in loopback_interfaces | arista.avd.convert_dicts('name') | arista.avd.natural_sort('name') %}
 {%         if loopback_interface.node_segment.ipv4_index is arista.avd.defined or loopback_interface.node_segment.ipv6_index is arista.avd.defined %}
 {%             do node_sid_loopbacks.append(loopback_interface) %}
 {%         endif %}
 {%     endfor %}
 {%     if node_sid_loopbacks | length > 0 %}
 
-#### ISIS Segment-routing Node-SID
+### ISIS Segment-routing Node-SID
 
 | Loopback | IPv4 Index | IPv6 Index |
 | -------- | ---------- | ---------- |
@@ -136,7 +135,7 @@
 {%     endif %}
 {%     if router_isis.segment_routing_mpls.prefix_segments is arista.avd.defined %}
 
-#### Prefix Segments
+### Prefix Segments
 
 | Prefix Segment | Index |
 | -------------- | ----- |
@@ -148,7 +147,7 @@
 {%     endif %}
 {%     if router_isis.address_family_ipv4 is arista.avd.defined %}
 
-#### ISIS IPv4 Address Family Summary
+### ISIS IPv4 Address Family Summary
 
 | Settings | Value |
 | -------- | ----- |
@@ -171,7 +170,7 @@
 {%     endif %}
 {%     if router_isis.address_family_ipv4.tunnel_source_labeled_unicast.enabled is arista.avd.defined(true) %}
 
-#### Tunnel Source
+### Tunnel Source
 
 | Source Protocol | RCF |
 | --------------- | --- |
@@ -180,7 +179,7 @@
 {%     endif %}
 {%     if router_isis.address_family_ipv6 is arista.avd.defined %}
 
-#### ISIS IPv6 Address Family Summary
+### ISIS IPv6 Address Family Summary
 
 | Settings | Value |
 | -------- | ----- |
@@ -202,7 +201,7 @@
 {%         endif %}
 {%     endif %}
 
-#### Router ISIS Device Configuration
+### Router ISIS Device Configuration
 
 ```eos
 {%     include 'eos/router-isis.j2' %}

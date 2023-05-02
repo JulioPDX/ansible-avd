@@ -1,20 +1,19 @@
-{# doc - qos #}
-{% if qos is arista.avd.defined %}
+{% if qos is defined %}
 
-### QOS
+## QOS
 
-#### QOS Summary
+### QOS Summary
 
-{%     if qos.rewrite_dscp is arista.avd.defined(true) %}
+{%     if qos.rewrite_dscp is defined and qos.rewrite_dscp == true %}
 QOS rewrite DSCP: **enabled**
 {%     else %}
 QOS rewrite DSCP: **disabled**
 {%     endif %}
 
-{%     if qos.map is arista.avd.defined %}
-##### QOS Mappings
+{%     if qos.map is defined and qos is not none %}
+#### QOS Mappings
 
-{%         if qos.map.cos is arista.avd.defined %}
+{%         if qos.map.cos is defined and qos.map.cos is not none %}
 
 | COS to Traffic Class mappings |
 | ----------------------------- |
@@ -23,7 +22,7 @@ QOS rewrite DSCP: **disabled**
 {%             endfor %}
 {%         endif %}
 
-{%         if qos.map.dscp is arista.avd.defined %}
+{%         if qos.map.dscp is defined and qos.map.dscp is not none %}
 
 | DSCP to Traffic Class mappings |
 | ------------------------------ |
@@ -32,7 +31,7 @@ QOS rewrite DSCP: **disabled**
 {%             endfor %}
 {%         endif %}
 
-{%         if qos.map.traffic_class is arista.avd.defined %}
+{%         if qos.map.traffic_class is defined and qos.map.traffic_class is not none %}
 
 | Traffic Class to DSCP or COS mappings |
 | ------------------------------------- |
@@ -42,7 +41,7 @@ QOS rewrite DSCP: **disabled**
 {%         endif %}
 {%     endif %}
 
-#### QOS Device Configuration
+### QOS Device Configuration
 
 ```eos
 {%     include 'eos/qos.j2' %}

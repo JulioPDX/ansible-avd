@@ -1,8 +1,7 @@
 #
 # def arista.avd.default
 #
-from __future__ import absolute_import, division, print_function
-
+from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 from jinja2.runtime import Undefined
@@ -20,7 +19,7 @@ def default(primary_value, *default_values):
 
     Example
     -------
-    priority: {{ spanning_tree_priority | arista.avd.default("32768") }}
+    priority: {{ switch.spanning_tree_priority | arista.avd.default("32768") }}
 
     Parameters
     ----------
@@ -48,5 +47,5 @@ def default(primary_value, *default_values):
 class FilterModule(object):
     def filters(self):
         return {
-            "default": default,
+            'default': default,
         }

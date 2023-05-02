@@ -1,25 +1,21 @@
 #
 # def arista.avd.add_md_toc
 #
-from __future__ import absolute_import, division, print_function
-
+from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import re
-import sys
-from io import StringIO
-
 from jinja2.runtime import Undefined
-
+from io import StringIO
+import sys
+import re
 try:
     import md_toc
-
     HAS_MD_TOC = True
 except ImportError:
     HAS_MD_TOC = False
 
 
-def add_md_toc(md_input, skip_lines=0, toc_levels=3, toc_marker="<!-- toc -->"):
+def add_md_toc(md_input, skip_lines=0, toc_levels=2, toc_marker='<!-- toc -->'):
     """
     add_md_toc will parse the input MarkDown and add a TOC between the toc_markers
 
@@ -40,8 +36,8 @@ def add_md_toc(md_input, skip_lines=0, toc_levels=3, toc_marker="<!-- toc -->"):
         default: 0
 
     toc_levels: int, optional
-        How many levels of headings will be included in the TOC (Default:3)
-        default: 3
+        How many levels of headings will be included in the TOC (Default:2)
+        default: 2
 
     toc_marker: str, optional
         TOC will be inserted or updated between two of these markers in the MD file
@@ -62,12 +58,12 @@ def add_md_toc(md_input, skip_lines=0, toc_levels=3, toc_marker="<!-- toc -->"):
     with StringIO(md_input) as md:
         stdin = sys.stdin
         sys.stdin = md
-        toc = md_toc.build_toc("-", keep_header_levels=toc_levels, skip_lines=skip_lines).rstrip()
+        toc = md_toc.build_toc('-', keep_header_levels=toc_levels, skip_lines=skip_lines)
         sys.stdin = stdin
 
     # Insert TOC between markers
     toc_marker = re.escape(toc_marker)
-    toc_pattern = re.compile(rf"{toc_marker}[\S\s]*?{toc_marker}")
+    toc_pattern = re.compile(fr"{toc_marker}[\S\s]*?{toc_marker}")
 
     return toc_pattern.sub(toc, md_input, count=1)
 
@@ -75,5 +71,5 @@ def add_md_toc(md_input, skip_lines=0, toc_levels=3, toc_marker="<!-- toc -->"):
 class FilterModule(object):
     def filters(self):
         return {
-            "add_md_toc": add_md_toc,
+            'add_md_toc': add_md_toc,
         }

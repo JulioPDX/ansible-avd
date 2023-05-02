@@ -1,4 +1,4 @@
-{# eos - tacacs servers #}
+{# eos - AAA Group Servers#}
 {% if tacacs_servers is arista.avd.defined %}
 !
 {%     for host in tacacs_servers.hosts | arista.avd.natural_sort %}
