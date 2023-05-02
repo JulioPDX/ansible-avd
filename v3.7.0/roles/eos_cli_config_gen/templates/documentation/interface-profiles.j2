@@ -1,10 +1,11 @@
+{# doc - interface profiles #}
 {% if interface_profiles is arista.avd.defined %}
 
 ## Interface Profiles
 
 ### Interface Profiles Summary
 
-{%     for interface_profile in interface_profiles | arista.avd.convert_dicts('name') | arista.avd.natural_sort('name') %}
+{%     for interface_profile in interface_profiles | arista.avd.natural_sort('name') %}
 - {{ interface_profile.name }}
 {%     endfor %}
 

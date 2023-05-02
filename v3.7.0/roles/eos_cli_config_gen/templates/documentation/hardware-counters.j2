@@ -1,3 +1,4 @@
+{# doc - hardware counters #}
 {% if hardware_counters is defined and hardware_counters is not none %}
 
 ## Hardware Counters
@@ -14,8 +15,12 @@
 {%                 if 'name' in feature %}
 | {{ feature.name }} | {{ feature.direction }} |
 {%                 else %}
-{%                     for feat in feature | arista.avd.convert_dicts('name','direction') %}
+{%                     for feat in feature %}
+{%                         if 'name' in feat %}
 | {{ feat.name }} | {{ feat.direction }} |
+{%                         else %}
+| {{ feat }} | {{ feature[feat] }} |
+{%                         endif %}
 {%                     endfor %}
 {%                 endif %}
 {%             endfor %}
