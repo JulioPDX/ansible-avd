@@ -4,6 +4,8 @@
 type: dict
 keys:
   local_users:
+    documentation_options:
+      filename: data_model/Authentication
     type: list
     primary_key: name
     convert_types:
@@ -15,11 +17,16 @@ keys:
           description: Username
           type: str
           required: true
+        disabled:
+          type: bool
+          description: |
+            If true, the user will be removed and all other settings are ignored.
+            Useful for removing the default "admin" user.
         privilege:
           type: int
           convert_types:
           - str
-          min: 1
+          min: 0
           max: 15
           description: |
             Initial privilege level with local EXEC authorization.
@@ -38,3 +45,11 @@ keys:
             If set a password will not be configured for this user. "sha512_password" MUST not be defined for this user.
         ssh_key:
           type: str
+        shell:
+          type: str
+          description: |
+            Specify shell for the user
+          valid_values:
+          - /bin/bash
+          - /bin/sh
+          - /sbin/nologin

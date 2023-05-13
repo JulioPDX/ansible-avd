@@ -1,11 +1,9 @@
-from __future__ import absolute_import, division, print_function
+from collections import ChainMap
+from copy import deepcopy
 
-__metaclass__ = type
-
-import copy
-import json
-import os
-
+from ansible_collections.arista.avd.plugins.plugin_utils.errors import AristaAvdError
+from ansible_collections.arista.avd.plugins.plugin_utils.merge import merge
+from ansible_collections.arista.avd.plugins.plugin_utils.schema.refresolver import create_refresolver
 from ansible_collections.arista.avd.plugins.plugin_utils.utils import get_all
 
 try:
@@ -25,10 +23,6 @@ except ImportError as imp_exc:
     DEEPMERGE_IMPORT_ERROR = imp_exc
 else:
     DEEPMERGE_IMPORT_ERROR = None
-
-script_dir = os.path.dirname(__file__)
-with open(f"{script_dir}/avd_meta_schema.json", "r", encoding="utf-8") as file:
-    AVD_META_SCHEMA = json.load(file)
 
 
 def _primary_key_validator(validator, primary_key: str, instance: list, schema: dict):
@@ -82,15 +76,15 @@ def _keys_validator(validator, keys: dict, instance: dict, schema: dict):
     for key, childschema in keys.items():
         if key in instance and "$ref" in childschema:
             scope, resolved = validator.resolver.resolve(childschema["$ref"])
-            merged_childschema = copy.deepcopy(resolved)
+            merged_childschema = deepcopy(resolved)
             always_merger.merge(merged_childschema, childschema)
             merged_childschema.pop("$ref", None)
             keys[key] = merged_childschema
 
     # Validation of "allow_other_keys"
     if not schema.get("allow_other_keys", False):
-        # Check what instance only contains the schema keys
-        invalid_keys = ", ".join([key for key in instance if key not in keys])
+        # Check that instance only contains the schema keys
+        invalid_keys = ", ".join([key for key in instance if key not in keys and key[0] != "_"])
         if invalid_keys:
             yield jsonschema.ValidationError(f"Unexpected key(s) '{invalid_keys}' found in dict.")
 
@@ -136,11 +130,18 @@ def _ref_validator(validator, ref, instance: dict, schema: dict):
     a check for $ref has been added to the other validators, to
     avoid duplicate validation (and duplicate errors)
     """
-    scope, resolved = validator.resolver.resolve(ref)
+    scope, ref_schema = validator.resolver.resolve(ref)
     validator.resolver.push_scope(scope)
-    merged_schema = copy.deepcopy(resolved)
-    always_merger.merge(merged_schema, schema)
-    merged_schema.pop("$ref", None)
+    schema = deepcopy(schema)
+    schema.pop("$ref", None)
+    merged_schema = merge(schema, ref_schema, same_key_strategy="use_existing", destructive_merge=False)
+
+    # Resolve new refs inherited from the first ref.
+    if "$ref" in merged_schema:
+        yield from _ref_validator(validator, merged_schema["$ref"], instance, merged_schema)
+        validator.resolver.pop_scope()
+        return
+
     try:
         yield from validator.descend(instance, merged_schema)
     finally:
@@ -155,50 +156,60 @@ def _valid_values_validator(validator, valid_values, instance, schema: dict):
         yield jsonschema.ValidationError(f"'{instance}' is not one of {valid_values}")
 
 
-"""
-AvdSchemaValidator is used to validate AVD Data.
-It uses a combination of our own validators and builtin jsonschema validators
-mapped to our own keywords.
-We have extra type checkers not covered by the AVD_META_SCHEMA (array, boolean etc)
-since the same TypeChecker is used by the validators themselves.
-"""
-if JSONSCHEMA_IMPORT_ERROR or DEEPMERGE_IMPORT_ERROR:
-    AvdValidator = None
-else:
-    AvdValidator = jsonschema.validators.create(
-        meta_schema=AVD_META_SCHEMA,
-        validators={
-            "$ref": _ref_validator,
-            "type": jsonschema._validators.type,
-            "max": jsonschema._validators.maximum,
-            "min": jsonschema._validators.minimum,
-            "valid_values": _valid_values_validator,
-            "format": jsonschema._validators.format,
-            "max_length": jsonschema._validators.maxLength,
-            "min_length": jsonschema._validators.minLength,
-            "pattern": jsonschema._validators.pattern,
-            "items": jsonschema._validators.items,
-            "primary_key": _primary_key_validator,
-            "keys": _keys_validator,
-            "dynamic_keys": _dynamic_keys_validator,
-        },
-        type_checker=jsonschema.TypeChecker(
-            {
-                "any": jsonschema._types.is_any,
-                "array": jsonschema._types.is_array,
-                "boolean": jsonschema._types.is_bool,
-                "integer": jsonschema._types.is_integer,
-                "object": jsonschema._types.is_object,
-                "null": jsonschema._types.is_null,
-                "None": jsonschema._types.is_null,
-                "number": jsonschema._types.is_number,
-                "string": jsonschema._types.is_string,
-                "dict": jsonschema._types.is_object,
-                "str": jsonschema._types.is_string,
-                "bool": jsonschema._types.is_bool,
-                "list": jsonschema._types.is_array,
-                "int": jsonschema._types.is_integer,
-            }
+def _is_dict(validator, instance):
+    return isinstance(instance, (dict, ChainMap))
+
+
+class AvdValidator:
+    def __new__(cls, schema, store):
+        """
+        AvdSchemaValidator is used to validate AVD Data.
+        It uses a combination of our own validators and builtin jsonschema validators
+        mapped to our own keywords.
+        We have extra type checkers not covered by the AVD_META_SCHEMA (array, boolean etc)
+        since the same TypeChecker is used by the validators themselves.
+        """
+        if JSONSCHEMA_IMPORT_ERROR:
+            raise AristaAvdError('Python library "jsonschema" must be installed to use this plugin') from JSONSCHEMA_IMPORT_ERROR
+        if DEEPMERGE_IMPORT_ERROR:
+            raise AristaAvdError('Python library "deepmerge" must be installed to use this plugin') from DEEPMERGE_IMPORT_ERROR
+
+        ValidatorClass = jsonschema.validators.create(
+            meta_schema=store["avd_meta_schema"],
+            validators={
+                "$ref": _ref_validator,
+                "type": jsonschema._validators.type,
+                "max": jsonschema._validators.maximum,
+                "min": jsonschema._validators.minimum,
+                "valid_values": _valid_values_validator,
+                "format": jsonschema._validators.format,
+                "max_length": jsonschema._validators.maxLength,
+                "min_length": jsonschema._validators.minLength,
+                "pattern": jsonschema._validators.pattern,
+                "items": jsonschema._validators.items,
+                "primary_key": _primary_key_validator,
+                "keys": _keys_validator,
+                "dynamic_keys": _dynamic_keys_validator,
+            },
+            type_checker=jsonschema.TypeChecker(
+                {
+                    "any": jsonschema._types.is_any,
+                    "array": jsonschema._types.is_array,
+                    "boolean": jsonschema._types.is_bool,
+                    "integer": jsonschema._types.is_integer,
+                    "object": jsonschema._types.is_object,
+                    "null": jsonschema._types.is_null,
+                    "None": jsonschema._types.is_null,
+                    "number": jsonschema._types.is_number,
+                    "string": jsonschema._types.is_string,
+                    "dict": _is_dict,
+                    "str": jsonschema._types.is_string,
+                    "bool": jsonschema._types.is_bool,
+                    "list": jsonschema._types.is_array,
+                    "int": jsonschema._types.is_integer,
+                }
+            )
+            # version="0.1",
         )
-        # version="0.1",
-    )
+
+        return ValidatorClass(schema, resolver=create_refresolver(schema, store))

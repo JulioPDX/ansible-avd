@@ -4,6 +4,8 @@
 type: dict
 keys:
   management_cvx:
+    documentation_options:
+      filename: data_model/Management
     type: dict
     keys:
       shutdown:
@@ -13,3 +15,9 @@ keys:
         items:
           type: str
           description: IP or hostname
+      source_interface:
+        type: str
+        description: Interface name
+      vrf:
+        type: str
+        description: VRF Name

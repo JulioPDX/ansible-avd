@@ -19,7 +19,7 @@ except ImportError:
     HAS_MD_TOC = False
 
 
-def add_md_toc(md_input, skip_lines=0, toc_levels=2, toc_marker="<!-- toc -->"):
+def add_md_toc(md_input, skip_lines=0, toc_levels=3, toc_marker="<!-- toc -->"):
     """
     add_md_toc will parse the input MarkDown and add a TOC between the toc_markers
 
@@ -40,8 +40,8 @@ def add_md_toc(md_input, skip_lines=0, toc_levels=2, toc_marker="<!-- toc -->"):
         default: 0
 
     toc_levels: int, optional
-        How many levels of headings will be included in the TOC (Default:2)
-        default: 2
+        How many levels of headings will be included in the TOC (Default:3)
+        default: 3
 
     toc_marker: str, optional
         TOC will be inserted or updated between two of these markers in the MD file
@@ -62,7 +62,7 @@ def add_md_toc(md_input, skip_lines=0, toc_levels=2, toc_marker="<!-- toc -->"):
     with StringIO(md_input) as md:
         stdin = sys.stdin
         sys.stdin = md
-        toc = md_toc.build_toc("-", keep_header_levels=toc_levels, skip_lines=skip_lines)
+        toc = md_toc.build_toc("-", keep_header_levels=toc_levels, skip_lines=skip_lines).rstrip()
         sys.stdin = stdin
 
     # Insert TOC between markers

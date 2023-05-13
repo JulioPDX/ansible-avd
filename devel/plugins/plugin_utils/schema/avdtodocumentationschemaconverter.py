@@ -1,6 +1,6 @@
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, annotations, division, print_function
 
-from ansible_collections.arista.avd.plugins.plugin_utils.schema.errors import AristaAvdError
+from ansible_collections.arista.avd.plugins.plugin_utils.errors import AristaAvdError
 from ansible_collections.arista.avd.plugins.plugin_utils.schema.key_to_display_name import key_to_display_name
 
 __metaclass__ = type
@@ -9,6 +9,50 @@ from ansible_collections.arista.avd.plugins.plugin_utils.schema.avdschema import
 
 # The DEFAULT_TABLE value is only used a dummy value for unset "table" value.
 DEFAULT_TABLE = "_default_table_value_if_not_set"
+
+
+def get_deprecation(schema: dict) -> tuple[str, str]:
+    """
+    Build deprecation details for documentation if deprecation is set on the schema element.
+
+    This function is also imported into avdtojsonschemaconverter
+
+    Returns
+    -------
+    deprecation_label : str | None
+        If deprecated or removed this is "removed" or "deprecated". Should be added as label
+        on the key by the calling function.
+    deprecation : str | None
+        Deprecation or removal message which should be added to the key comment field by the calling function.
+    """
+    if (deprecation := schema.get("deprecation")) is None:
+        return None, None
+
+    if removed := deprecation.get("removed"):
+        removed_verb = "was"
+        state_verb = "was"
+        state = "removed"
+    else:
+        removed_verb = "will be"
+        state_verb = "is"
+        state = "deprecated"
+
+    output = [f"This key {state_verb} {state}."]
+
+    if (remove_in_version := deprecation.get("remove_in_version")) is not None:
+        output.append(f"Support {removed_verb} removed in AVD version {remove_in_version}.")
+    elif (remove_after_date := deprecation.get("remove_after_date")) is not None:
+        output.append(f"Support {removed_verb} removed in the first major AVD version released after {remove_after_date}.")
+    elif removed:
+        output.append(f"Support {removed_verb} removed in AVD.")
+
+    if (new_key := deprecation.get("new_key")) is not None:
+        output.append(f"Use <samp>{new_key}</samp> instead.")
+
+    if (url := deprecation.get("url")) is not None:
+        output.append(f"See [here]({url}) for details.")
+
+    return state, " ".join(output)
 
 
 class AvdToDocumentationSchemaConverter:
@@ -24,7 +68,7 @@ class AvdToDocumentationSchemaConverter:
     in the schema. See the schema documentation for details.
 
     Example:
-    - filename: myfile
+    "myfile":
       tables:
         - display_name: Foo
           description: "foo is an example of a schema key"
@@ -43,25 +87,20 @@ class AvdToDocumentationSchemaConverter:
     def __init__(self, avdschema: AvdSchema):
         self._avdschema = avdschema
         meta_schema = self._avdschema._validator.META_SCHEMA
-        documentation_options_schema = meta_schema["$def"]["documentation_options"]
+        documentation_options_schema = meta_schema["$defs"]["documentation_options"]
         self._default_filename = documentation_options_schema["properties"]["filename"]["default"]
 
     def convert_schema(self):
         schema = {}
-        output = []
+        output = {}
 
         # Get fully resolved schema (where all $ref has been expanded recursively)
-        # Performs inplace update of the argument so we give an empty dict.
-        # By default it will resolve the full schema
-        resolve_errors = self._avdschema.resolve(schema)
-        for resolve_error in resolve_errors:
-            if isinstance(resolve_error, Exception):
-                raise AristaAvdError(resolve_error)
+        schema = self._avdschema.resolved_schema
 
         filenames = self._get_filenames(schema)
 
         for filename in filenames:
-            output.append({"filename": filename, "tables": self.build_tables(filename, schema)})
+            output[filename] = {"tables": self.build_tables(filename, schema)}
 
         return output
 
@@ -102,7 +141,7 @@ class AvdToDocumentationSchemaConverter:
             built_table["description"] = main_key_schema.get("description")
         else:
             # Combined table
-            built_table["display_name"] = key_to_display_name(table)
+            built_table["display_name"] = table
 
         schema_keys = self._get_keys(schema)
 
@@ -149,6 +188,11 @@ class AvdToDocumentationSchemaConverter:
         description = self.description(schema, indentation, table)
         if description is not None:
             row["description"] = description
+
+        deprecation_label, deprecation = get_deprecation(schema)
+        if deprecation is not None:
+            row["deprecation_label"] = deprecation_label
+            row["deprecation"] = deprecation
 
         output.append(row)
 
@@ -315,6 +359,8 @@ class AvdToDocumentationSchemaConverter:
 
     def restrictions(self, schema: dict):
         restrictions = []
+        if schema.get("convert_to_lower_case"):
+            restrictions.append("Value is converted to lower case")
         if schema.get("min") is not None:
             restrictions.append(f"Min: {schema['min']}")
         if schema.get("max") is not None:
@@ -328,7 +374,8 @@ class AvdToDocumentationSchemaConverter:
         if schema.get("dynamic_valid_values") is not None:
             schema.setdefault("valid_values", [])
             valid_value = f"<value(s) of {schema['dynamic_valid_values']}>"
-            schema["valid_values"].append(valid_value)
+            if valid_value not in schema["valid_values"]:
+                schema["valid_values"].append(valid_value)
         if schema.get("valid_values") is not None:
             restrictions.append("Valid Values:")
             for valid_value in schema["valid_values"]:

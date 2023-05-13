@@ -3,15 +3,11 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 from ansible.errors import AnsibleActionFail
-from ansible.plugins.action import ActionBase
-from ansible.utils.display import Display
+from ansible.plugins.action import ActionBase, display
 
 from ansible_collections.arista.avd.plugins.filter.add_md_toc import add_md_toc
-from ansible_collections.arista.avd.plugins.plugin_utils.schema.avdschema import AristaAvdError, AvdSchema
-from ansible_collections.arista.avd.plugins.plugin_utils.utils import compile_searchpath, template
-
-VALID_CONVERSION_MODES = ["disabled", "warning", "info", "debug"]
-VALID_VALIDATION_MODES = ["disabled", "error", "warning", "info", "debug"]
+from ansible_collections.arista.avd.plugins.plugin_utils.schema.avdschematools import AvdSchemaTools
+from ansible_collections.arista.avd.plugins.plugin_utils.utils import get_templar, template
 
 
 class ActionModule(ActionBase):
@@ -23,30 +19,18 @@ class ActionModule(ActionBase):
         del tmp  # tmp no longer has any effect
 
         # Validate Arguments
-        if self._task.args and "schema" in self._task.args and "template" in self._task.args:
-            self.templatefile = self._task.args["template"]
-            if not isinstance(self.templatefile, str):
-                raise AnsibleActionFail("The argument 'template' must be a string")
-            self.dest = self._task.args["dest"]
-            if not isinstance(self.dest, str):
-                raise AnsibleActionFail("The argument 'dest' must be a string")
-            schema = self._task.args["schema"]
-            if not isinstance(schema, dict):
-                raise AnsibleActionFail("The argument 'schema' must be a dict")
-        else:
-            raise AnsibleActionFail("The arguments 'template', 'dest' and 'schema' must be set")
+        self.templatefile = self._task.args.get("template")
+        if not isinstance(self.templatefile, str):
+            raise AnsibleActionFail("The argument 'template' must be a string")
 
-        self.conversion_mode = self._task.args.get("conversion_mode", "debug")
-        if not isinstance(self.conversion_mode, str):
-            raise AnsibleActionFail("The argument 'conversion_mode' must be a string")
-        if self.conversion_mode not in VALID_CONVERSION_MODES:
-            raise AnsibleActionFail(f"Invalid value '{self.conversion_mode}' for the argument 'conversion_mode'. Must be one of {VALID_CONVERSION_MODES}")
+        schema = self._task.args.get("schema")
+        schema_id = self._task.args.get("schema_id")
+        conversion_mode = self._task.args.get("conversion_mode")
+        validation_mode = self._task.args.get("validation_mode")
 
-        self.validation_mode = self._task.args.get("validation_mode", "warning")
-        if not isinstance(self.validation_mode, str):
-            raise AnsibleActionFail("The argument 'validation_mode' must be a string")
-        if self.validation_mode not in VALID_VALIDATION_MODES:
-            raise AnsibleActionFail(f"Invalid value '{self.validation_mode}' for the argument 'validation_mode'. Must be one of {VALID_VALIDATION_MODES}")
+        dest = self._task.args.get("dest")
+        if dest is not None and not isinstance(dest, str):
+            raise AnsibleActionFail("The argument 'dest' must be a string if set")
 
         self.add_md_toc = self._task.args.get("add_md_toc", False)
         if not isinstance(self.add_md_toc, bool):
@@ -57,102 +41,54 @@ class ActionModule(ActionBase):
             raise AnsibleActionFail("The argument 'md_toc_skip_lines' must be an integer")
 
         # Build data from hostvars and role default vars
-        self.hostname = task_vars["inventory_hostname"]
+        hostname = task_vars["inventory_hostname"]
         self.data = self._templar.template(self._task._role.get_default_vars())
-        self.data.update(task_vars["hostvars"].get(self.hostname))
+        self.data.update(task_vars["hostvars"].get(hostname))
 
-        try:
-            self.avd_schema = AvdSchema(schema)
-        except Exception as e:
-            raise AnsibleActionFail("Invalid Schema supplied to the 'arista.avd.validate_and_template' plugin") from e
-
-        result_messages = []
-
-        # Perform data conversions
-        if self.conversion_mode != "disabled":
-            self.convert_data(result_messages)
-
-        # Perform validation
-        if self.validation_mode != "disabled":
-            valid = self.validate_data(result_messages)
-            if not valid and self.validation_mode == "error":
-                result["failed"] = True
-
-        if result_messages:
-            result["msg"] = " ".join(result_messages)
+        # Load schema tools and perform conversion and validation
+        avdschematools = AvdSchemaTools(
+            hostname=hostname,
+            ansible_display=display,
+            schema=schema,
+            schema_id=schema_id,
+            conversion_mode=conversion_mode,
+            validation_mode=validation_mode,
+            plugin_name=task_vars["ansible_role_name"],
+        )
+        result.update(avdschematools.convert_and_validate_data(self.data))
 
         # Template to file
         # Update result from Ansible "copy" operation (setting 'changed' flag accordingly)
-        result.update(self.template(task_vars))
+        if not result.get("failed"):
+            result.update(self.template(task_vars, dest))
 
         return result
 
-    def convert_data(self, result_messages):
-        """
-        Convert data according to the schema (convert_types)
+    def template(self, task_vars, dest):
+        # Get updated templar instance to be passed along to our simplified "templater"
+        templar = get_templar(self, task_vars)
 
-        The data conversion is done in-place (updating the original "data" dict).
-        """
-
-        # avd_schema.convert returns a generator, which we need to run over to perform the actual conversions.
-        # The returned values are a list of conversion errors
-        exceptions = list(self.avd_schema.convert(self.data))
-        conversion_counter = self.handle_exceptions(exceptions, self.conversion_mode)
-        # This is not yet effective, since the converter does not yield on succesful conversion.
-        # TODO: Get converter to return the data that was converted, so the user can see what needs to be updated.
-        if conversion_counter:
-            result_messages.append(f"{conversion_counter} data conversions done to conform to schema.")
-        return
-
-    def validate_data(self, result_messages):
-        """
-        Validate data according to the schema
-        """
-
-        # avd_schema.validate returns a generator, which we need to run over to perform the actual validations.
-        # The returned values are a list of validation errors
-        exceptions = list(self.avd_schema.validate(self.data))
-        validation_counter = self.handle_exceptions(exceptions, self.validation_mode)
-        if validation_counter:
-            result_messages.append(f"{validation_counter} errors found during schema validation of input vars.")
-            return False
-        return True
-
-    def handle_exceptions(self, exceptions, mode):
-        arista_avd_errors = [exception for exception in exceptions if isinstance(exception, AristaAvdError)]
-        for exception in arista_avd_errors:
-            message = str.encode(f"[{self.hostname}]: {exception}", "UTF-8")
-            if mode == "error":
-                Display().error(message, False)
-            elif mode == "message":
-                Display().display(message, False)
-            elif mode == "debug":
-                Display(verbosity=1).debug(message, False)
-            else:
-                # mode == "warning"
-                Display().warning(message, False)
-        return len(arista_avd_errors)
-
-    def template(self, task_vars):
-        searchpath = compile_searchpath(task_vars.get("ansible_search_path"))
-        templar = self._templar.copy_with_new_env(searchpath=searchpath, available_variables={})
-        output = template(self.templatefile, self.data, templar, searchpath)
+        output = template(self.templatefile, self.data, templar)
         if self.add_md_toc:
             output = add_md_toc(output, skip_lines=self.md_toc_skip_lines)
 
-        write_file_result = self.write_file(output, task_vars)
+        if dest is None:
+            # Return dict with template output in 'output' key for fileless operation
+            return {"output": output}
+
+        write_file_result = self.write_file(output, dest, task_vars)
 
         # Return result with the result from the copy operation
         return write_file_result
 
-    def write_file(self, content, task_vars):
+    def write_file(self, content, dest, task_vars):
         """
         This function implements the Ansible 'copy' action_module, to benefit from Ansible builtin functionality like 'changed'.
         Reuse task data
         """
         new_task = self._task.copy()
         new_task.args = {
-            "dest": self.dest,
+            "dest": dest,
             "mode": self._task.args.get("mode"),
             "content": content,
         }

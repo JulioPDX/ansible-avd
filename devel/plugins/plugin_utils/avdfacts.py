@@ -1,12 +1,16 @@
-from functools import cached_property
+from __future__ import annotations
 
-from ansible_collections.arista.avd.plugins.plugin_utils.utils import AristaAvdError, compile_searchpath, get, template_var
+from functools import cached_property
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ansible_collections.arista.avd.plugins.plugin_utils.eos_designs_shared_utils import SharedUtils
 
 
 class AvdFacts:
-    def __init__(self, hostvars, templar):
+    def __init__(self, hostvars: dict, shared_utils: SharedUtils):
         self._hostvars = hostvars
-        self._templar = templar
+        self.shared_utils = shared_utils
 
     @classmethod
     def __keys(cls):  # pylint: disable=bad-option-value, unused-private-member # CH Sep-22: Some pylint bug.
@@ -58,30 +62,3 @@ class AvdFacts:
         Empty values are removed from the returned data.
         """
         return {key: getattr(self, key) for key in self.keys() if getattr(self, key) is not None}
-
-    @cached_property
-    def _searchpath(self):
-        """
-        Add a '<>/templates' entry for every entry in "ansible_search_path"
-        similar to is done in the Ansible "template" lookup module.
-        """
-        ansible_search_path = get(self._hostvars, "ansible_search_path", required=True)
-        return compile_searchpath(ansible_search_path)
-
-    def template_var(self, template_file, template_vars):
-        """
-        Run the simplified templater using the passed Ansible "templar" engine.
-
-        Note that the "templar" was initialized in the calling action module with
-        the following variables per device:
-        - Ansible hostvars for that device
-        - "avd_switch_facts" pointer to dictionary containing instances of this
-           class for every device
-        - "switch" pointer to this instance of this class
-        The pointers mean that templates can leverage any fact method on any device
-        during templating, even if those facts have not yet been calculated.
-        """
-        try:
-            return template_var(template_file, template_vars, self._templar, self._searchpath)
-        except Exception as e:
-            raise AristaAvdError(f"[{self.hostname}] Error during templating of template: {template_file} with data: {template_vars}") from e

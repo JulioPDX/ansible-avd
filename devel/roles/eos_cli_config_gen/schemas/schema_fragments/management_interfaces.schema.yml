@@ -4,6 +4,8 @@
 type: dict
 keys:
   management_interfaces:
+    documentation_options:
+      filename: data_model/Management
     type: list
     primary_key: name
     convert_types:
@@ -43,3 +45,9 @@ keys:
         ipv6_gateway:
           type: str
           description: IPv6 address of default gateway in management VRF
+        mac_address:
+          type: str
+          description: MAC address
+        eos_cli:
+          type: str
+          description: Multiline EOS CLI rendered directly on the management interface in the final EOS configuration

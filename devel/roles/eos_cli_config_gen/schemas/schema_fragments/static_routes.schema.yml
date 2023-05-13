@@ -4,6 +4,8 @@
 type: dict
 keys:
   static_routes:
+    documentation_options:
+      filename: data_model/Routing
     type: list
     items:
       type: dict
@@ -19,6 +21,9 @@ keys:
         gateway:
           type: str
           description: IPv4 Address
+        track_bfd:
+          type: bool
+          description: Track next-hop using BFD
         distance:
           type: int
           convert_types:

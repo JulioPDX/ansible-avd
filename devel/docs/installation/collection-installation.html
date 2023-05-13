@@ -16,7 +16,7 @@
         <link rel="prev" href="../../examples/campus-fabric/index.html">
       
       
-        <link rel="next" href="requirements.html">
+        <link rel="next" href="../how-to/first-project.html">
       
       <link rel="icon" href="../_media/favicon.ico">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.0.15">
@@ -211,7 +211,9 @@
                     
 
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../../index.html" title="Arista AVD collection" class="md-nav__button md-logo" aria-label="Arista AVD collection" data-md-component="logo">
       
@@ -302,6 +304,20 @@
     <li class="md-nav__item">
       <a href="../../examples/single-dc-l3ls/index.html" class="md-nav__link">
         Example for Single DC L3LS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/dual-dc-l3ls/index.html" class="md-nav__link">
+        Example for Dual DC L3LS
       </a>
     </li>
   
@@ -413,11 +429,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install-from-ansible-galaxy" class="md-nav__link">
-    Install from Ansible Galaxy
+  <a href="#installation-workflow" class="md-nav__link">
+    Installation workflow
   </a>
   
-    <nav class="md-nav" aria-label="Install from Ansible Galaxy">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-collection-from-ansible-galaxy" class="md-nav__link">
+    Install Collection from Ansible Galaxy
+  </a>
+  
+    <nav class="md-nav" aria-label="Install Collection from Ansible Galaxy">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -461,8 +484,42 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ansible-resources" class="md-nav__link">
-    Ansible resources
+  <a href="#additional-python-libraries-required" class="md-nav__link">
+    Additional Python Libraries required
+  </a>
+  
+    <nav class="md-nav" aria-label="Additional Python Libraries required">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#python-requirements-installation" class="md-nav__link">
+    Python requirements installation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ansible-configuration-file" class="md-nav__link">
+    Ansible configuration file
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arista-eos-requirements" class="md-nav__link">
+    Arista EOS requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arista-cloudvision-requirements" class="md-nav__link">
+    Arista CloudVision requirements
   </a>
   
 </li>
@@ -471,20 +528,6 @@
   
 </nav>
       
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="requirements.html" class="md-nav__link">
-        Requirements
-      </a>
     </li>
   
 
@@ -790,6 +833,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../roles/eos_designs/doc/ptp.html" class="md-nav__link">
+        PTP
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../roles/eos_designs/doc/node-types.html" class="md-nav__link">
         Node Types
       </a>
@@ -837,17 +894,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_11" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_12" >
       
       
       
-        <label class="md-nav__link" for="__nav_6_1_11" id="__nav_6_1_11_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_6_1_12" id="__nav_6_1_12_label" tabindex="0">
           MPLS Design (BETA)
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_11_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_6_1_11">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_12_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_1_12">
           <span class="md-nav__icon md-icon"></span>
           MPLS Design (BETA)
         </label>
@@ -942,10 +999,736 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+          eos_cli_config_gen
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_2">
+          <span class="md-nav__icon md-icon"></span>
+          eos_cli_config_gen
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../roles/eos_cli_config_gen/index.html" class="md-nav__link">
-        eos_cli_config_gen
+        Overview
       </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/inputs/Role%20Inputs.html" class="md-nav__link">
+        Role Inputs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_2_3" id="__nav_6_2_3_label" tabindex="0">
+          Data Model
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Data Model
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/ACLs.html" class="md-nav__link">
+        ACLs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Address%20Locking.html" class="md-nav__link">
+        Address Locking
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Aliases.html" class="md-nav__link">
+        Aliases
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Authentication.html" class="md-nav__link">
+        Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Banners.html" class="md-nav__link">
+        Banners
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/DHCP%20Relay.html" class="md-nav__link">
+        DHCP Relay
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/EOS%20CLI.html" class="md-nav__link">
+        EOS CLI
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Endpoint%20Security.html" class="md-nav__link">
+        Endpoint Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Errdisable.html" class="md-nav__link">
+        Errdisable
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Filters.html" class="md-nav__link">
+        Filters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Flow%20Tracking.html" class="md-nav__link">
+        Flow Tracking
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Hardware.html" class="md-nav__link">
+        Hardware
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/IP%20DHCP%20Relay.html" class="md-nav__link">
+        IP DHCP Relay
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/IP%20Hardware.html" class="md-nav__link">
+        IP Hardware
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/IP%20ICMP%20Redirect.html" class="md-nav__link">
+        IP ICMP Redirect
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/IP%20NAT.html" class="md-nav__link">
+        IP NAT
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/IPv6%20Hardware.html" class="md-nav__link">
+        IPv6 Hardware
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Interfaces.html" class="md-nav__link">
+        Interfaces
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/L2%20Protocol%20Forwarding.html" class="md-nav__link">
+        L2 Protocol Forwarding
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/LACP.html" class="md-nav__link">
+        LACP
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/LLDP.html" class="md-nav__link">
+        LLDP
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Link%20Tracking%20Groups.html" class="md-nav__link">
+        Link Tracking Groups
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/MAC%20Address-table.html" class="md-nav__link">
+        MAC Address-table
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/MAC%20Security.html" class="md-nav__link">
+        MAC Security
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/MCS%20Client.html" class="md-nav__link">
+        MCS Client
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/MLAG.html" class="md-nav__link">
+        MLAG
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/MPLS.html" class="md-nav__link">
+        MPLS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Maintenance%20Mode.html" class="md-nav__link">
+        Maintenance Mode
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Management.html" class="md-nav__link">
+        Management
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Monitoring.html" class="md-nav__link">
+        Monitoring
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Multicast.html" class="md-nav__link">
+        Multicast
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/PTP.html" class="md-nav__link">
+        PTP
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Patch%20Panel.html" class="md-nav__link">
+        Patch Panel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Power%20over%20Ethernet.html" class="md-nav__link">
+        Power over Ethernet
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Prompt.html" class="md-nav__link">
+        Prompt
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Quality%20of%20Service.html" class="md-nav__link">
+        Quality of Service
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Routing.html" class="md-nav__link">
+        Routing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Service%20Unsupported%20Transceiver.html" class="md-nav__link">
+        Service Unsupported Transceiver
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Spanning%20Tree.html" class="md-nav__link">
+        Spanning Tree
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/System%20Boot%20Settings.html" class="md-nav__link">
+        System Boot Settings
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/System%20Control-Plane.html" class="md-nav__link">
+        System Control-Plane
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Terminal%20Settings.html" class="md-nav__link">
+        Terminal Settings
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Traffic%20Policies.html" class="md-nav__link">
+        Traffic Policies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/VLAN%20Internal%20Order.html" class="md-nav__link">
+        VLAN Internal Order
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/VLANs.html" class="md-nav__link">
+        VLANs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roles/eos_cli_config_gen/docs/data_model/Virtual%20Source%20NAT.html" class="md-nav__link">
+        Virtual Source NAT
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -1363,6 +2146,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../release-notes/4.x.x.html" class="md-nav__link">
+        4.x.x
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../release-notes/3.x.x.html" class="md-nav__link">
         3.x.x
       </a>
@@ -1437,12 +2234,61 @@
       
       
         <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
-          About
+          Porting Guides
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          Porting Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../porting-guides/4.x.x.html" class="md-nav__link">
+        4.x.x
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+          About
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_12">
           <span class="md-nav__icon md-icon"></span>
           About
         </label>
@@ -1517,87 +2363,6 @@
               </div>
             
             
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#install-from-ansible-galaxy" class="md-nav__link">
-    Install from Ansible Galaxy
-  </a>
-  
-    <nav class="md-nav" aria-label="Install from Ansible Galaxy">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#latest-version" class="md-nav__link">
-    Latest version
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#install-a-specific-version" class="md-nav__link">
-    Install a specific version
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#install-latest-devel-version-from-avd-github" class="md-nav__link">
-    Install latest devel version from AVD GitHub
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#install-in-a-specific-directory" class="md-nav__link">
-    Install in a specific directory
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upgrade-installed-avd-collection" class="md-nav__link">
-    Upgrade installed AVD collection
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ansible-resources" class="md-nav__link">
-    Ansible resources
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
           
           
             <div class="md-content" data-md-component="content">
@@ -1609,12 +2374,23 @@
   
 
 
-<h1 id="collection-installation">Collection Installation<a class="headerlink" href="#collection-installation" title="Permanent link">&para;</a></h1>
-<p>These instructions are for regular users to install via Ansible Galaxy. To setup a development environment use <a href="../contribution/setup-environment.html">these</a> instructions.</p>
-<p><strong>arista.avd</strong> can also be consumed using the <a href="https://github.com/arista-netdevops-community/avd-all-in-one-container">&ldquo;AVD All-in-one&rdquo; container</a>.</p>
-<h2 id="install-from-ansible-galaxy">Install from Ansible Galaxy<a class="headerlink" href="#install-from-ansible-galaxy" title="Permanent link">&para;</a></h2>
-<p>The <strong>arista.avd</strong> collection is available on <a href="https://galaxy.ansible.com/arista/avd">Ansible Galaxy</a> server and can be automatically installed on your system.</p>
-<p>Make sure to install <a href="requirements.html#additional-python-libraries-required">Python requirements</a> afterwards.</p>
+<h1 id="collection-installation">Collection installation<a class="headerlink" href="#collection-installation" title="Permanent link">&para;</a></h1>
+<h2 id="installation-workflow">Installation workflow<a class="headerlink" href="#installation-workflow" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Install <a href="https://www.python.org/downloads/">Python</a> <strong>3.8</strong> or later</li>
+<li>Install <a href="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html">ansible-core</a> from <strong>2.12.6</strong> to <strong>2.14.x</strong> excluding <strong>2.13.0</strong></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Excluded version <strong>2.13.0</strong> has an issue in <code>ansible-core</code>, which is <a href="https://github.com/ansible/ansible/blob/v2.13.1/changelogs/CHANGELOG-v2.13.rst#bugfixes">fixed</a> in <strong>2.13.1</strong>. Plugin loader will now load config data for plugin by name instead of by file to avoid issues with the same file being loaded under different names (Fully-Qualified-Collection-Name + short-name).</p>
+</div>
+<ul>
+<li>Install <a href="#install-collection-from-ansible-galaxy">arista.avd</a> collection</li>
+<li>Install additional Python <a href="#python-requirements-installation">requirements</a></li>
+<li>Modify <code>ansible.cfg</code> file to support additional <a href="#ansible-configuration-file">jinja2 extensions</a></li>
+</ul>
+<h2 id="install-collection-from-ansible-galaxy">Install Collection from Ansible Galaxy<a class="headerlink" href="#install-collection-from-ansible-galaxy" title="Permanent link">&para;</a></h2>
+<p>These instructions are for regular users to install via Ansible Galaxy. To setup a development environment use <a href="../contribution/setup-environment.html">these</a> instructions. <strong>arista.avd</strong> can also be consumed using the <a href="https://github.com/arista-netdevops-community/avd-all-in-one-container">&ldquo;AVD All-in-one&rdquo; container</a>. The <strong>arista.avd</strong> collection is available on <a href="https://galaxy.ansible.com/arista/avd">Ansible Galaxy</a> server and can be automatically installed on your system.</p>
 <h3 id="latest-version">Latest version<a class="headerlink" href="#latest-version" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>arista.avd
 </code></pre></div>
@@ -1665,19 +2441,74 @@
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Starting<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>process
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>Installing<span class="w"> </span><span class="s1">&#39;arista.avd:3.6.0&#39;</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;/root/.ansible/collections/ansible_collections/arista/avd&#39;</span>
 </code></pre></div>
-<h2 id="ansible-resources">Ansible resources<a class="headerlink" href="#ansible-resources" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+</div>
+<p>After an upgrade, some python requirements may have changed. Follow the
+instructions in the Python <a href="#python-requirements-installation">requirements</a>
+section to update your python packages.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>You can find some additional information about how to use Ansible&rsquo;s collections on the following Ansible pages:</p>
 <ul>
 <li><a href="https://docs.ansible.com/ansible/latest/user_guide/collections_using.html">Ansible collection user guide</a></li>
 <li><a href="https://docs.ansible.com/ansible/latest/user_guide/index.html">Ansible User guide</a></li>
 </ul>
+</div>
+<h2 id="additional-python-libraries-required">Additional Python Libraries required<a class="headerlink" href="#additional-python-libraries-required" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>netaddr&gt;=0.7.19
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Jinja2&gt;=2.11.3
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>treelib&gt;=1.5.5
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>cvprac&gt;=1.0.7
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>paramiko&gt;=2.7.1
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>jsonschema&gt;=4.5.1
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>requests&gt;=2.25.1
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>PyYAML&gt;=5.4.1
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>md-toc&gt;=7.1.0
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>deepmerge&gt;=1.1.0
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>cryptography&gt;=38.0.4
+</code></pre></div>
+<h3 id="python-requirements-installation">Python requirements installation<a class="headerlink" href="#python-requirements-installation" title="Permanent link">&para;</a></h3>
+<p>In a shell, run the following commands after installing the collection from ansible-galaxy:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ARISTA_AVD_DIR</span><span class="o">=</span><span class="k">$(</span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>list<span class="w"> </span>arista.avd<span class="w"> </span>--format<span class="w"> </span>yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d:<span class="w"> </span>-f1<span class="k">)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span><span class="si">${</span><span class="nv">ARISTA_AVD_DIR</span><span class="si">}</span>/arista/avd/requirements.txt
+</code></pre></div>
+<p>If the collection is cloned from GitHub, we can reference the requirements file directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>ansible-avd/ansible_collections/arista/avd/requirements.txt
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Depending of your operating system settings, <code>pip3</code> might be replaced by <code>pip</code>.</p>
+</div>
+<h2 id="ansible-configuration-file">Ansible configuration file<a class="headerlink" href="#ansible-configuration-file" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Enable Jinja2 extensions: <code>loopcontrols</code> and <code>do</code><ul>
+<li><a href="https://jinja.palletsprojects.com/extensions/">Jinja2 Extensions Documentation</a></li>
+</ul>
+</li>
+<li>By default, Ansible will issue a warning when a duplicate dict key is encountered in YAML. We recommend to change to error instead and stop playbook execution when a duplicate key is detected.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="na">jinja2_extensions</span><span class="o">=</span><span class="s">jinja2.ext.loopcontrols,jinja2.ext.do</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="na">duplicate_dict_key</span><span class="o">=</span><span class="s">error</span>
+</code></pre></div>
+<h2 id="arista-eos-requirements">Arista EOS requirements<a class="headerlink" href="#arista-eos-requirements" title="Permanent link">&para;</a></h2>
+<ul>
+<li>EOS <strong>4.21.8M</strong> or later</li>
+<li>Roles validated with eAPI transport -&gt; <code>ansible_connection: httpapi</code></li>
+</ul>
+<h2 id="arista-cloudvision-requirements">Arista CloudVision requirements<a class="headerlink" href="#arista-cloudvision-requirements" title="Permanent link">&para;</a></h2>
+<p>If you leverage <a href="https://www.arista.com/en/products/eos/eos-cloudvision">CloudVision</a> deployment with AVD, your CV instance must be supported by <a href="https://cvp.avd.sh/">CloudVision Ansible collection</a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using ansible-cvp modules, the user who is executing the ansible-playbook must have access to both CVP and the EOS CLI.</p>
+</div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">September 12, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 8, 2023</span>
       
     
   </small>
@@ -1710,7 +2541,7 @@
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2019 - 2022 Arista Networks
+      Copyright &copy; 2019 - 2023 Arista Networks
     </div>
   
   
@@ -1767,7 +2598,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.top", "search.highlight", "header.autohide", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "stable", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "header.autohide", "navigation.instant", "navigation.top", "search.highlight", "toc.integrate", "toc.follow"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "stable", "provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.2a6f1dda.min.js"></script>

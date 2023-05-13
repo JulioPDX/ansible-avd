@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import cProfile
-import importlib
 import pstats
 from collections import ChainMap
 from datetime import datetime
@@ -11,13 +10,16 @@ from datetime import datetime
 import yaml
 from ansible.errors import AnsibleActionFail
 from ansible.parsing.yaml.dumper import AnsibleDumper
-from ansible.plugins.action import ActionBase
+from ansible.plugins.action import ActionBase, display
 from ansible.utils.vars import isidentifier
 
 from ansible_collections.arista.avd.plugins.plugin_utils.avdfacts import AvdFacts
+from ansible_collections.arista.avd.plugins.plugin_utils.eos_designs_shared_utils import SharedUtils
+from ansible_collections.arista.avd.plugins.plugin_utils.errors import AristaAvdMissingVariableError
 from ansible_collections.arista.avd.plugins.plugin_utils.merge import merge
+from ansible_collections.arista.avd.plugins.plugin_utils.schema.avdschematools import AvdSchemaTools
 from ansible_collections.arista.avd.plugins.plugin_utils.strip_empties import strip_null_from_data
-from ansible_collections.arista.avd.plugins.plugin_utils.utils import AristaAvdError, compile_searchpath
+from ansible_collections.arista.avd.plugins.plugin_utils.utils import get, get_templar, load_python_class
 from ansible_collections.arista.avd.plugins.plugin_utils.utils import template as templater
 
 DEFAULT_PYTHON_CLASS_NAME = "AvdStructuredConfig"
@@ -44,40 +46,75 @@ class ActionModule(ActionBase):
                 n = self._templar.template(n)
                 if not isidentifier(n):
                     raise AnsibleActionFail(
-                        f"The argument 'root_key' value of '{n}' is not valid. Keys must start with a letter or underscore character,                          "
-                        "                   and contain only letters, numbers and underscores."
+                        f"The argument 'root_key' value of '{n}' is not valid. Keys must start with a letter or underscore character, "
+                        "and contain only letters, numbers and underscores."
                     )
                 root_key = n
 
-            if "templates" in self._task.args:
-                t = self._task.args.get("templates")
-                if isinstance(t, list):
-                    template_list = t
-                else:
-                    raise AnsibleActionFail("The argument 'templates' is not a list")
-            else:
-                raise AnsibleActionFail("The argument 'templates' must be set")
+            template_list = self._task.args.get("templates")
+            if not isinstance(template_list, list):
+                raise AnsibleActionFail("The argument 'templates' must be set as a list")
 
-            dest = self._task.args.get("dest", False)
+            schema = self._task.args.get("schema")
+            schema_id = self._task.args.get("schema_id")
+            self.dest = self._task.args.get("dest", False)
             template_output = self._task.args.get("template_output", False)
             debug = self._task.args.get("debug", False)
-            remove_avd_switch_facts = self._task.args.get("remove_avd_switch_facts", False)
+            conversion_mode = self._task.args.get("conversion_mode")
+            validation_mode = self._task.args.get("validation_mode")
+            output_schema = self._task.args.get("output_schema")
+            output_schema_id = self._task.args.get("output_schema_id")
 
         else:
             raise AnsibleActionFail("The argument 'templates' must be set")
 
-        # Read ansible variables and perform templating to support inline jinja
-        for var in task_vars:
-            if str(var).startswith(("ansible", "molecule", "hostvars", "vars")):
-                continue
-            try:
-                task_vars[var] = self._templar.template(task_vars[var], fail_on_undefined=False)
-            except Exception as e:
-                raise AnsibleActionFail(f"Exception during templating of task_var '{var}'") from e
+        hostname = task_vars["inventory_hostname"]
 
-        # Create a new Ansible "templar" instance to be passed along to our simplified "templater"
-        searchpath = compile_searchpath(task_vars.get("ansible_search_path"))
-        templar = self._templar.copy_with_new_env(searchpath=searchpath, available_variables={})
+        task_vars["switch"] = get(task_vars, f"avd_switch_facts..{hostname}..switch", separator="..", default={})
+
+        # Read ansible variables and perform templating to support inline jinja2
+        for var in task_vars:
+            if str(var).startswith(("ansible", "molecule", "hostvars", "vars", "avd_switch_facts")):
+                continue
+            if self._templar.is_template(task_vars[var]):
+                # Var contains a jinja2 template.
+                try:
+                    task_vars[var] = self._templar.template(task_vars[var], fail_on_undefined=False)
+                except Exception as e:
+                    raise AnsibleActionFail(f"Exception during templating of task_var '{var}'") from e
+
+        if schema or schema_id:
+            # Load schema tools and perform conversion and validation
+            avdschematools = AvdSchemaTools(
+                hostname=hostname,
+                ansible_display=display,
+                schema=schema,
+                schema_id=schema_id,
+                conversion_mode=conversion_mode,
+                validation_mode=validation_mode,
+                plugin_name=task_vars["ansible_role_name"],
+            )
+            result.update(avdschematools.convert_and_validate_data(task_vars))
+            if result.get("failed"):
+                # Input data validation failed so return errors.
+                return result
+
+        if output_schema or output_schema_id:
+            output_avdschematools = AvdSchemaTools(
+                hostname=hostname,
+                ansible_display=display,
+                schema=output_schema,
+                schema_id=output_schema_id,
+                conversion_mode=conversion_mode,
+                validation_mode=validation_mode,
+                plugin_name=task_vars["ansible_role_name"],
+            )
+            output_avdschema = output_avdschematools.avdschema
+        else:
+            output_avdschema = None
+
+        # Get updated templar instance to be passed along to our simplified "templater"
+        self.templar = get_templar(self, task_vars)
 
         # If the argument 'root_key' is set, output will be assigned to this variable. If not set, the output will be set at as "root" variables.
         # We use ChainMap to avoid copying large amounts of data around, mapping in
@@ -89,6 +126,9 @@ class ActionModule(ActionBase):
             template_vars = ChainMap({root_key: output}, task_vars)
         else:
             template_vars = ChainMap(output, task_vars)
+
+        # Initialize SharedUtils class to be passed to each python_module below.
+        shared_utils = SharedUtils(hostvars=template_vars, templar=self.templar)
 
         # If the argument 'debug' is set, a 'avd_yaml_templates_to_facts_debug' list will be added to the output.
         # This list contains timestamps from every step for every template. This is useful for identifying slow templates.
@@ -103,7 +143,7 @@ class ActionModule(ActionBase):
                 debug_item["timestamps"] = {"starting": datetime.now()}
 
             template_options = template_item.get("options", {})
-            list_merge = template_options.get("list_merge", "append")
+            list_merge = template_options.get("list_merge", "append_rp")
 
             strip_empty_keys = template_options.get("strip_empty_keys", True)
 
@@ -114,7 +154,7 @@ class ActionModule(ActionBase):
                     debug_item["timestamps"]["run_template"] = datetime.now()
 
                 # Here we parse the template, expecting the result to be a YAML formatted string
-                template_result = templater(template, template_vars, templar, searchpath)
+                template_result = templater(template, template_vars, self.templar)
 
                 if debug:
                     debug_item["timestamps"]["load_yaml"] = datetime.now()
@@ -132,35 +172,46 @@ class ActionModule(ActionBase):
             elif "python_module" in template_item:
                 module_path = template_item.get("python_module")
                 class_name = template_item.get("python_class_name", DEFAULT_PYTHON_CLASS_NAME)
+                try:
+                    cls = load_python_class(module_path, class_name, AvdFacts)
+                except AristaAvdMissingVariableError as exc:
+                    raise AnsibleActionFail(f"Missing module_path or class_name in {template_item}") from exc
+
+                cls_instance = cls(hostvars=template_vars, shared_utils=shared_utils)
+
+                if debug:
+                    debug_item["timestamps"]["render_python_class"] = datetime.now()
+
+                if not (getattr(cls_instance, "render")):
+                    raise AnsibleActionFail(f"{cls_instance} has no attribute render")
 
                 try:
-                    cls = getattr(importlib.import_module(module_path), class_name)
-                except ImportError as imp_exc:
-                    raise AnsibleActionFail(imp_exc) from imp_exc
-
-                if issubclass(cls, AvdFacts):
-                    cls_instance = cls(hostvars=template_vars, templar=templar)
-                    if debug:
-                        debug_item["timestamps"]["render_python_class"] = datetime.now()
-                    if getattr(cls_instance, "render"):
-                        try:
-                            template_result_data = cls_instance.render()
-                        except Exception as error:
-                            raise AnsibleActionFail(error) from error
-                    else:
-                        raise AristaAvdError(f"{cls_instance} has no attribute render")
-                else:
-                    raise AnsibleActionFail(f"{cls} is not an instance of AvdFacts class")
+                    template_result_data = cls_instance.render()
+                except Exception as error:
+                    raise AnsibleActionFail(message=str(error)) from error
 
             else:
                 raise AnsibleActionFail("Invalid template data")
 
-            # If there is any data produced by the template, combine it on top of previous output.
+            # If there is any data produced by the template, convert and merge it on top of previous output.
             if template_result_data:
+                # Some modules/templates return a list of dicts, others only return a dict. Here we normalize to list.
+                if not isinstance(template_result_data, list):
+                    template_result_data = [template_result_data]
+
+                # If output_schema is set, perform inplace conversion of each returned dict according to output_schema
+                # to normalize the data to correct format before merging
+                if output_avdschema:
+                    if debug:
+                        debug_item["timestamps"]["data_conversion_from_schema"] = datetime.now()
+
+                    for result_item in template_result_data:
+                        output_avdschematools.convert_data(result_item)
+
                 if debug:
                     debug_item["timestamps"]["combine_data"] = datetime.now()
 
-                merge(output, template_result_data, list_merge=list_merge)
+                merge(output, *template_result_data, list_merge=list_merge, schema=output_avdschema)
 
             if debug:
                 debug_item["timestamps"]["done"] = datetime.now()
@@ -172,21 +223,21 @@ class ActionModule(ActionBase):
             if debug:
                 debug_item = {"action": "template_output", "timestamps": {"templating": datetime.now()}}
 
-            templar.available_variables = template_vars
-            output = templar.template(output)
+            with self._templar.set_temporary_context(available_variables=template_vars):
+                output = self._templar.template(output, fail_on_undefined=False)
 
             if debug:
                 debug_item["timestamps"]["done"] = datetime.now()
                 avd_yaml_templates_to_facts_debug.append(debug_item)
 
         # If the argument 'dest' is set, write the output data to a file.
-        if dest:
+        if self.dest:
             if debug:
-                debug_item = {"action": "dest", "dest": dest, "timestamps": {"write_file": datetime.now()}}
+                debug_item = {"action": "dest", "dest": self.dest, "timestamps": {"write_file": datetime.now()}}
 
             # Depending on the file suffix of 'dest' (default: 'json') we will format the data to yaml or just write the output data directly.
             # The Copy module used in 'write_file' will convert the output data to json automatically.
-            if dest.split(".")[-1] in ["yml", "yaml"]:
+            if self.dest.split(".")[-1] in ["yml", "yaml"]:
                 write_file_result = self.write_file(yaml.dump(output, Dumper=AnsibleDumper, indent=2, sort_keys=False, width=130), task_vars)
             else:
                 write_file_result = self.write_file(output, task_vars)
@@ -211,8 +262,7 @@ class ActionModule(ActionBase):
         else:
             result["ansible_facts"] = output
 
-        if remove_avd_switch_facts:
-            result["ansible_facts"]["avd_switch_facts"] = None
+        result["ansible_facts"]["switch"] = task_vars.get("switch")
 
         if cprofile_file:
             profiler.disable()
@@ -222,15 +272,16 @@ class ActionModule(ActionBase):
         return result
 
     def write_file(self, content, task_vars):
-        # The write_file function is implementing the Ansible 'copy' action_module, to benefit from Ansible builtin functionality like 'changed'.
-        # Reuse task data
+        """
+        This function implements the Ansible 'copy' action_module, to benefit from Ansible builtin functionality like 'changed'.
+        Reuse task data
+        """
         new_task = self._task.copy()
-
-        # remove 'yaml_templates_to_facts' options (except 'dest' which will be reused):
-        for remove in ("root_key", "templates", "template_output", "debug", "remove_avd_switch_facts"):
-            new_task.args.pop(remove, None)
-
-        new_task.args["content"] = content
+        new_task.args = {
+            "dest": self.dest,
+            "mode": self._task.args.get("mode"),
+            "content": content,
+        }
 
         copy_action = self._shared_loader_obj.action_loader.get(
             "ansible.legacy.copy",
