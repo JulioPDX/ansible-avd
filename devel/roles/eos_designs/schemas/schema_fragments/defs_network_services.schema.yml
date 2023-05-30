@@ -4,8 +4,6 @@
 type: dict
 $defs:
   network_services:
-    documentation_options:
-      filename: Network Services
     type: list
     primary_key: name
     convert_types:
@@ -396,6 +394,8 @@ $defs:
                           description: |
                             Restrict configuration to specific nodes.
                             Will apply to all nodes with RP addresses configured if not set.
+                          items:
+                            type: str
                         transit:
                           type: bool
                           default: false
@@ -565,13 +565,11 @@ $defs:
                     structured_config:
                       type: dict
                       description: |
-                        Custom structured config added under vlan_interfaces.<interface> for eos_cli_config_gen.
-                        Overrides the setting on SVI level.
+                        Custom structured config added under ethernet_interfaces.<interface> for eos_cli_config_gen.
                     raw_eos_cli:
                       type: str
                       description: |
-                        EOS CLI rendered directly on the VLAN interface in the final EOS configuration
-                        Overrides the setting on SVI level.
+                        EOS CLI rendered directly on the Ethernet interface in the final EOS configuration.
               static_routes:
                 type: list
                 description: |
@@ -772,13 +770,11 @@ $defs:
                   raw_eos_cli:
                     type: str
                     description: |
-                      EOS CLI rendered directly on the VLAN interface in the final EOS configuration
-                      Overrides the setting on SVI level.
+                      EOS CLI rendered directly on the Router BGP, VRF definition in the final EOS configuration.
                   structured_config:
                     type: dict
                     description: |
-                      Custom structured config added under vlan_interfaces.<interface> for eos_cli_config_gen.
-                      Overrides the setting on SVI level.
+                      Custom structured config added under router_bgp.vrfs.<vrf> for eos_cli_config_gen.
               bgp_peer_groups:
                 type: list
                 description: |
@@ -824,13 +820,11 @@ $defs:
               raw_eos_cli:
                 type: str
                 description: |
-                  EOS CLI rendered directly on the VLAN interface in the final EOS configuration
-                  Overrides the setting on SVI level.
+                  EOS CLI rendered directly on the root level of the final EOS configuration.
               structured_config:
                 type: dict
                 description: |
-                  Custom structured config added under vlan_interfaces.<interface> for eos_cli_config_gen.
-                  Overrides the setting on SVI level.
+                  Custom structured config for eos_cli_config_gen.
         l2vlans:
           type: list
           primary_key: id
