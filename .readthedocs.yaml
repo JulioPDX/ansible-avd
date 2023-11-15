@@ -16,6 +16,9 @@ mkdocs:
   configuration: mkdocs.yml
   fail_on_warning: false
 
+formats:
+  - pdf
+
 python:
   install:
     - requirements: ansible_collections/arista/avd/docs/requirements.txt
